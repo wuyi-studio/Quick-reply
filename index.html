@@ -1,0 +1,2859 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>梧藝常用回覆與報價小幫手 | LINE OA @230fpemy</title>
+  <style>
+    :root {
+      --primary: #06c755;
+      --primary-dark: #05a847;
+      --primary-light: #e8f9ee;
+      --ai-purple: #8b5cf6;
+      --ai-purple-light: #f3e8ff;
+      --bg: #f3f5f8;
+      --card-bg: #ffffff;
+      --text: #191c21;
+      --text-sub: #64748b;
+      --border: #dbe2ea;
+      --border-focus: #06c755;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang TC", "Microsoft JhengHei", Roboto, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding-bottom: 24px;
+    }
+
+    /* 頂部固定列 */
+    .top-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      gap: 10px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    /* 分割畫面切換按鈕群組 */
+    .split-mode-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .btn-split-toggle {
+      height: 27px;
+      padding: 0 9px;
+      background: #f8fafc;
+      color: #475569;
+      border: 1.2px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-split-toggle:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-split-toggle.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary-dark);
+      box-shadow: 0 1px 3px rgba(6, 199, 85, 0.25);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .btn-manage-open {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      height: 27px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+    .btn-manage-open:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-line-open {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 4px 10px;
+      height: 27px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(6, 199, 85, 0.2);
+      white-space: nowrap;
+    }
+
+    /* 主內容容器 */
+    .container {
+      width: 100%;
+      margin: 8px auto;
+      padding: 0 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: max-width 0.2s;
+    }
+
+    .side-dock-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* 模式 1：靠右顯示 (適合 Chrome 左右分割畫面時放在右側 - 直式緊湊單欄) */
+    body.mode-right .container {
+      max-width: 480px;
+      margin: 6px auto 10px auto;
+      padding: 0 8px;
+      gap: 7px;
+    }
+
+    /* 模式 2：靠下顯示 (適合 Chrome 上下分割畫面堆疊在下方 - 橫向雙欄極致無滾動) */
+    body.mode-bottom .top-header {
+      padding: 3px 10px;
+      height: 32px;
+    }
+    body.mode-bottom .app-title {
+      font-size: 13px;
+    }
+    body.mode-bottom .btn-split-toggle,
+    body.mode-bottom .btn-manage-open,
+    body.mode-bottom .btn-line-open {
+      height: 24px;
+      padding: 0 7px;
+      font-size: 10.5px;
+    }
+
+    body.mode-bottom .container {
+      max-width: 100%;
+      margin: 4px 0 2px 0;
+      padding: 0 8px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+
+    body.mode-bottom .faq-section {
+      grid-column: 1 / 2;
+    }
+
+    body.mode-bottom .side-dock-container {
+      grid-column: 2 / 3;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* 靠下模式：常用回覆 2 欄並列 (雙排 5 列，全部 10 格一覽無遺，免滾動！) */
+    body.mode-bottom .search-filter-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 2px;
+    }
+    body.mode-bottom .search-input-box {
+      width: 135px;
+      flex-shrink: 0;
+      height: 24px;
+      font-size: 11px;
+      padding: 0 6px;
+    }
+    body.mode-bottom .category-pills {
+      flex: 1;
+      min-width: 0;
+      gap: 2px;
+      padding-bottom: 0;
+    }
+    body.mode-bottom .cat-pill {
+      min-width: 25px;
+      height: 24px;
+      font-size: 12.5px;
+      padding: 0;
+    }
+    body.mode-bottom .page-nav-container {
+      padding: 2px 4px;
+      margin-bottom: 3px;
+    }
+    body.mode-bottom .page-num-btn,
+    body.mode-bottom .btn-page-arrow {
+      height: 22px;
+      font-size: 10px;
+    }
+
+    body.mode-bottom .reply-cards-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px 6px;
+    }
+
+    body.mode-bottom .reply-card,
+    body.mode-bottom .empty-slot-card {
+      height: 28px;
+      padding: 2px 6px;
+      border-radius: 5px;
+      gap: 4px;
+    }
+
+    body.mode-bottom .reply-card-title {
+      font-size: 11.5px;
+    }
+
+    body.mode-bottom .btn-card-edit {
+      width: 21px;
+      height: 21px;
+      font-size: 9.5px;
+      border-radius: 4px;
+    }
+
+    body.mode-bottom .btn-main-copy,
+    body.mode-bottom .btn-card-send {
+      height: 21px;
+      padding: 0 5px;
+      font-size: 10px;
+      border-radius: 4px;
+    }
+
+    /* 靠下模式：語音 AI 條超緊湊 */
+    body.mode-bottom .compact-ai-bar {
+      height: 28px;
+      padding: 2px 6px;
+      gap: 4px;
+    }
+    body.mode-bottom .btn-voice-pill,
+    body.mode-bottom .btn-ai-pill,
+    body.mode-bottom .btn-copy-pill {
+      height: 23px;
+      padding: 0 7px;
+      font-size: 10.5px;
+    }
+    body.mode-bottom .compact-ai-textarea {
+      height: 23px;
+      font-size: 11.5px;
+      padding: 2px 6px;
+    }
+    body.mode-bottom .compact-ai-textarea:focus {
+      height: 48px;
+    }
+
+    /* 靠下模式：報價試算器極致緊湊 */
+    body.mode-bottom .collapse-header {
+      padding: 3px 8px;
+      height: 24px;
+    }
+    body.mode-bottom .collapse-title {
+      font-size: 11.5px;
+    }
+    body.mode-bottom .collapse-total-pill {
+      font-size: 11px;
+      padding: 1px 6px;
+    }
+    body.mode-bottom .collapse-body {
+      padding: 4px 6px;
+    }
+    body.mode-bottom .quote-row-grid {
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    body.mode-bottom .q-box {
+      padding: 3px 5px;
+      gap: 2px;
+    }
+    body.mode-bottom .q-label {
+      font-size: 10px;
+    }
+    body.mode-bottom .btn-item-toggle {
+      height: 22px;
+      font-size: 10px;
+    }
+    body.mode-bottom .q-input {
+      height: 20px;
+      font-size: 11px;
+      padding: 0 4px;
+    }
+    body.mode-bottom .addon-grid-wrapper {
+      grid-template-columns: repeat(6, 1fr) !important;
+      gap: 3px !important;
+      margin-bottom: 3px !important;
+    }
+    body.mode-bottom .btn-addon-cycle {
+      height: 23px;
+      font-size: 9.5px;
+      padding: 0 2px;
+    }
+    body.mode-bottom .quote-action-bar {
+      margin-top: 3px;
+      gap: 4px;
+    }
+    body.mode-bottom .btn-quote-copy {
+      height: 27px;
+      font-size: 11px;
+    }
+    body.mode-bottom .btn-quote-reset {
+      height: 27px;
+      font-size: 10.5px;
+    }
+
+    /* ================= 區塊 1：語音輸入 ＆ AI 潤飾快速自訂區 ================= */
+    /* ================= 區塊 2：極簡整合式 語音/臨時輸入/AI潤飾條 ================= */
+    .compact-ai-bar {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1.2px solid var(--border);
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .btn-voice-pill {
+      height: 30px;
+      padding: 0 9px;
+      background: #f8fafc;
+      border: 1.2px solid #cbd5e1;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .btn-voice-pill:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-voice-pill.recording {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #dc2626;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .compact-ai-textarea {
+      flex: 1;
+      min-width: 0;
+      height: 30px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 5px 8px;
+      font-size: 12.5px;
+      line-height: 1.35;
+      resize: none;
+      outline: none;
+      background: #f8fafc;
+      color: #0f172a;
+      transition: all 0.15s;
+    }
+
+    .compact-ai-textarea:focus {
+      border-color: #8b5cf6;
+      background: #fff;
+      height: 52px;
+    }
+
+    .btn-ai-pill {
+      height: 30px;
+      padding: 0 10px;
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(99, 102, 241, 0.25);
+      transition: all 0.12s;
+    }
+
+    .btn-ai-pill:hover {
+      opacity: 0.92;
+    }
+
+    .btn-ai-pill:active {
+      transform: scale(0.96);
+    }
+
+    .btn-copy-pill {
+      height: 30px;
+      padding: 0 10px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      box-shadow: 0 1px 2px rgba(6, 199, 85, 0.25);
+      transition: all 0.12s;
+    }
+
+    .btn-copy-pill:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-copy-pill:active {
+      transform: scale(0.96);
+    }
+
+    /* ================= 區塊 2：常用回覆問題列表 ================= */
+    .faq-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* 搜尋與分類 */
+    .search-filter-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .search-input-box {
+      width: 100%;
+      height: 38px;
+      background: #fff;
+      border: 1.2px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-input-box:focus {
+      border-color: var(--primary);
+    }
+
+    .category-pills {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding-bottom: 3px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .cat-pill {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      padding: 0;
+      border-radius: 7px;
+      border: 1.2px solid var(--border);
+      background: #ffffff;
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+    }
+
+    .cat-pill:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .cat-pill.active {
+      background: #0f172a;
+      border-color: #0f172a;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+      transform: scale(1.08);
+    }
+
+    /* 10 頁導航切換條 (極簡單行) */
+    .page-nav-container {
+      background: #ffffff;
+      border: 1.2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3px 6px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .page-pills-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3px;
+    }
+
+    .page-num-btn {
+      flex: 1;
+      height: 25px;
+      padding: 0;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: #334155;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+    }
+
+    .page-num-btn:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .page-num-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary-dark);
+      box-shadow: 0 1px 3px rgba(6, 199, 85, 0.25);
+    }
+
+    .btn-page-arrow {
+      width: 25px;
+      height: 25px;
+      padding: 0;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: #475569;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.12s;
+    }
+
+    .btn-page-arrow:hover:not(:disabled) {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-page-arrow:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .btn-page-arrow:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .slot-order-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .empty-slot-card {
+      border: 1.2px dashed #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 8px;
+      height: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.65);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .empty-slot-card:hover {
+      border-color: var(--primary);
+      background: #ffffff;
+    }
+
+    /* Modal 分頁選擇按鈕 */
+    .modal-page-selector {
+      display: flex;
+      gap: 3px;
+      overflow-x: auto;
+      max-width: 320px;
+    }
+    .modal-page-btn {
+      min-width: 27px;
+      height: 25px;
+      padding: 0 4px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      cursor: pointer;
+    }
+    .modal-page-btn.active {
+      background: #0f172a;
+      color: #fff;
+      border-color: #0f172a;
+    }
+
+    /* 常用回覆卡片列表 (精簡縮小版) */
+    .reply-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .reply-card {
+      background: #ffffff;
+      border: 1.2px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      height: 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.12s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+    }
+
+    .reply-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 1px 4px rgba(6, 199, 85, 0.08);
+    }
+
+    .reply-card.pressing {
+      background: #f0fdf4 !important;
+      border-color: var(--primary) !important;
+      transform: scale(0.985);
+    }
+
+    .reply-card.pressing::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 3.5px;
+      background: linear-gradient(90deg, var(--primary), #8b5cf6);
+      width: 0%;
+      animation: longPressBar 3s linear forwards;
+    }
+
+    @keyframes longPressBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    .reply-card.dragging {
+      opacity: 0.45;
+      border: 1.5px dashed var(--primary);
+    }
+
+    .reply-card.drag-over {
+      border-color: #8b5cf6 !important;
+      background: #f5f3ff !important;
+      transform: scale(1.01);
+    }
+
+    .empty-slot-card.drag-over {
+      border-color: #8b5cf6 !important;
+      background: #f5f3ff !important;
+    }
+
+    .reply-card-left {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .reply-emoji-tag {
+      font-size: 14px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .reply-card-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .reply-card-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .btn-card-edit {
+      width: 25px;
+      height: 25px;
+      padding: 0;
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+    }
+    .btn-card-edit:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    /* 右邊精簡複製按鈕 */
+    .btn-main-copy {
+      height: 25px;
+      padding: 0 8px;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      box-shadow: 0 1px 2px rgba(6, 199, 85, 0.2);
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+
+    .btn-main-copy:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-main-copy:active {
+      transform: scale(0.96);
+    }
+
+    .btn-main-copy.copied {
+      background: #0f172a !important;
+      color: #34d399 !important;
+    }
+
+    /* 精簡送出按鈕 (直發官方 LINE 對話框) */
+    .btn-card-send {
+      height: 25px;
+      padding: 0 8px;
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+
+    .btn-card-send:hover {
+      background: #0369a1;
+    }
+
+    .btn-card-send:active {
+      transform: scale(0.96);
+    }
+
+    .btn-fill-draft {
+      font-size: 10px;
+      color: #94a3b8;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 1px;
+    }
+
+    /* ================= 區塊 3：收摺式訂單報價試算器 ================= */
+    .collapse-card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      border: 1.2px solid #cbd5e1;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .collapse-header {
+      background: #ffffff;
+      padding: 11px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .collapse-header:hover {
+      background: #f8fafc;
+    }
+
+    .collapse-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .collapse-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .collapse-total-pill {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      background: var(--primary-light);
+      padding: 2px 9px;
+      border-radius: 12px;
+    }
+
+    .collapse-arrow {
+      font-size: 12px;
+      color: #64748b;
+      transition: transform 0.2s;
+    }
+
+    .collapse-card.open .collapse-arrow {
+      transform: rotate(180deg);
+    }
+
+    .collapse-body {
+      display: none;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: #f8fafc;
+    }
+
+    .collapse-card.open .collapse-body {
+      display: block;
+    }
+
+    /* 報價計算元件樣式 */
+    .quote-row-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .q-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .q-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .btn-item-toggle {
+      height: 28px;
+      background: #fff;
+      border: 1.2px solid var(--border);
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      transition: all 0.12s;
+    }
+
+    .btn-item-toggle.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: #0d6832;
+      font-weight: 700;
+    }
+
+    .q-input {
+      width: 100%;
+      height: 26px;
+      border: 1.2px solid var(--border);
+      border-radius: 5px;
+      padding: 0 8px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .addon-grid-wrapper {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .btn-addon-cycle {
+      height: 30px;
+      border-radius: 6px;
+      border: 1.2px solid var(--border);
+      background: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      transition: all 0.12s;
+    }
+
+    .btn-addon-cycle.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .quote-action-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-quote-copy {
+      flex: 1.5;
+      height: 38px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 2px 5px rgba(6, 199, 85, 0.25);
+    }
+
+    .btn-quote-reset {
+      flex: 0.8;
+      height: 38px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ef4444;
+      cursor: pointer;
+    }
+
+    /* 懸浮 Toast 提示 */
+    .toast {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(15, 23, 42, 0.96);
+      color: #ffffff;
+      padding: 7px 18px;
+      border-radius: 25px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    /* 管理與匯入 Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+    .modal-backdrop.show { display: flex; }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 540px;
+      padding: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .btn-modal-close {
+      font-size: 18px;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .modal-tab-bar {
+      display: flex;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 7px;
+    }
+    .modal-tab-btn {
+      flex: 1;
+      height: 30px;
+      border: none;
+      background: transparent;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #64748b;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-tab-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      font-weight: 700;
+    }
+
+    .modal-tab-content { display: none; }
+    .modal-tab-content.active { display: block; }
+
+    .modal-input, .modal-textarea {
+      width: 100%;
+      border: 1.2px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      outline: none;
+    }
+    .modal-textarea {
+      height: 140px;
+      resize: vertical;
+      line-height: 1.4;
+      font-family: inherit;
+    }
+    .modal-input:focus, .modal-textarea:focus { border-color: var(--primary); }
+
+    .btn-primary-modal {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-reset-data {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="mode-bottom">
+
+  <!-- 頂部固定資訊列 -->
+  <header class="top-header">
+    <div class="brand-group">
+      <span class="app-title">🌸 梧藝客服小幫手</span>
+      <!-- 分割畫面切換按鈕 (靠右顯示 / 靠下顯示) -->
+      <div class="split-mode-group">
+        <button type="button" class="btn-split-toggle" id="btnSplitRight" onclick="setSplitMode('right')" title="適合 Chrome 左右分割畫面時放在右側 (直式緊湊)">
+          <span>📐 靠右顯示 (左右分割)</span>
+        </button>
+        <button type="button" class="btn-split-toggle active" id="btnSplitBottom" onclick="setSplitMode('bottom')" title="適合 Chrome 上下分割畫面時放在下方 (橫向雙欄免滾動)">
+          <span>📐 靠下顯示 (上下堆疊)</span>
+        </button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <!-- 管理/匯入按鈕 -->
+      <button type="button" class="btn-manage-open" onclick="openManageModal()">
+        <span>⚙️ 管理／匯入</span>
+      </button>
+      <!-- 點擊直接開啟或跳轉官方 LINE -->
+      <a href="https://line.me/R/ti/p/@230fpemy" target="_blank" class="btn-line-open">
+        <span>💬 開啟 LINE</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 1. 常用回覆問題列表 (左欄 / 置頂) -->
+    <section class="faq-section">
+      <!-- 搜尋與分類膠囊 (純 EMOJI) -->
+      <div class="search-filter-row">
+        <input type="text" class="search-input-box" id="searchInput" placeholder="🔍 搜尋回覆關鍵字（如：匯款、蛋糕、花束、取貨、運費...）" oninput="filterReplies()">
+        <div class="category-pills">
+          <button type="button" class="cat-pill active" onclick="selectCategory('all', this)">🌟</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('💐', this)">💐</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('🌹', this)">🌹</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('🎂', this)">🎂</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('🍔', this)">🍔</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('🔥', this)">🔥</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('🚗', this)">🚗</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('⭐️', this)">⭐️</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('‼️', this)">‼️</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('❓', this)">❓</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('😊', this)">😊</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('👍', this)">👍</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('💙', this)">💙</button>
+          <button type="button" class="cat-pill" onclick="selectCategory('❤️', this)">❤️</button>
+        </div>
+      </div>
+
+      <!-- 10 頁切換列 (極簡單列) -->
+      <div class="page-nav-container">
+        <div class="page-pills-row" id="mainPagePills">
+          <!-- ◀ 1 2 3 4 5 6 7 8 9 10 ▶ 由 JS 動態生成 -->
+        </div>
+      </div>
+
+      <!-- 回覆問題列表 (只顯示標題與三按鈕) -->
+      <div class="reply-cards-list" id="repliesContainer">
+        <!-- 由 JavaScript 動態渲染回覆卡片 -->
+      </div>
+    </section>
+
+    <!-- 右側輔助區塊 (靠下分割時顯示於右欄，靠右分割時順排在下方) -->
+    <div class="side-dock-container">
+      <!-- 2. 精簡版：語音輸入 ＆ AI 潤飾快速條 (單列整合) -->
+      <section class="compact-ai-bar">
+        <button type="button" class="btn-voice-pill" id="btnVoice" onclick="toggleVoiceInput()" title="點擊語音輸入">
+          <span id="voiceIcon">🎤</span>
+          <span id="voiceText">語音</span>
+        </button>
+        <textarea class="compact-ai-textarea" id="draftInput" rows="1" placeholder="臨時問答／語音輸入（點「AI 潤飾」轉親切口吻）..."></textarea>
+        <button type="button" class="btn-ai-pill" onclick="polishWithAI()" title="AI 一鍵潤飾為客氣親切口吻">
+          <span>✨ 潤飾</span>
+        </button>
+        <button type="button" class="btn-copy-pill" onclick="copyDraftText()" title="複製到剪貼簿">
+          <span>📋 複製</span>
+        </button>
+      </section>
+
+      <!-- 3. 收摺式：訂單報價試算器 (原本小幫手功能完整保留) -->
+      <section class="collapse-card" id="quoteCollapse">
+        <div class="collapse-header" onclick="toggleQuoteCollapse()">
+          <div class="collapse-title-group">
+            <span class="collapse-title">📋 訂單報價試算器 (點此展開／收摺)</span>
+            <span class="collapse-total-pill" id="totalBadge">加總 $0</span>
+          </div>
+          <span class="collapse-arrow">▼</span>
+        </div>
+
+        <div class="collapse-body">
+          <!-- 花束 ＋ 蛋糕 -->
+          <div class="quote-row-grid">
+            <!-- 花束品項 -->
+            <div class="q-box">
+              <span class="q-label">💐 花束品項</span>
+              <div style="display: flex; gap: 4px;">
+                <button type="button" class="btn-item-toggle" id="btnFlower" onclick="toggleFlower()">💐 花束 $390</button>
+                <button type="button" class="btn-item-toggle" id="btnBag" onclick="toggleBag()">🛍️ 提袋 $40</button>
+              </div>
+              <input type="number" class="q-input" id="flowerCustomPrice" placeholder="花束自訂金額" oninput="onFlowerCustomInput()">
+            </div>
+
+            <!-- 蛋糕品項 -->
+            <div class="q-box">
+              <span class="q-label">🎂 蛋糕品項</span>
+              <div style="display: flex; gap: 4px;">
+                <button type="button" class="btn-item-toggle" id="cp760" onclick="setCakePreset(760)">760</button>
+                <button type="button" class="btn-item-toggle" id="cp1030" onclick="setCakePreset(1030)">1030</button>
+                <button type="button" class="btn-item-toggle" id="cp1060" onclick="setCakePreset(1060)">1060</button>
+              </div>
+              <input type="number" class="q-input" id="cakeCustomPrice" placeholder="蛋糕金額(可直接打字)" oninput="onCakeCustomInput()">
+            </div>
+          </div>
+
+          <!-- 加購配件循環按鈕 (按幾下乘幾次：靠下模式自動單列6顆，靠右模式雙列各3顆) -->
+          <div class="addon-grid-wrapper">
+            <button type="button" class="btn-addon-cycle" id="btnU2" onclick="cycleAddon('u2', 15, '2人餐具')">2人餐具 +$15</button>
+            <button type="button" class="btn-addon-cycle" id="btnU5" onclick="cycleAddon('u5', 30, '5人餐具')">5人餐具 +$30</button>
+            <button type="button" class="btn-addon-cycle" id="btnU10" onclick="cycleAddon('u10', 50, '10人餐具')">10人餐具 +$50</button>
+            <button type="button" class="btn-addon-cycle" id="btnC45" onclick="cycleAddon('c45', 45, '蠟燭$45')">蠟燭 $45</button>
+            <button type="button" class="btn-addon-cycle" id="btnC55" onclick="cycleAddon('c55', 55, '蠟燭$55')">蠟燭 $55</button>
+            <button type="button" class="btn-addon-cycle" id="btnIce" onclick="toggleIceBag()">🧊保冰袋 +$100</button>
+          </div>
+
+          <!-- 操作按鈕 -->
+          <div class="quote-action-bar">
+            <button type="button" class="btn-quote-copy" onclick="copyQuoteText()">
+              <span>📋 複製完整報價文案 (貼至 LINE)</span>
+            </button>
+            <button type="button" class="btn-quote-reset" onclick="resetQuote()">
+              <span>🗑️ 重算清空</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- 管理與匯入常用回覆 Modal -->
+  <div class="modal-backdrop" id="manageModal" onclick="closeModalOnBg(event)">
+    <div class="modal-box">
+      <div class="modal-top">
+        <span class="modal-title">⚙️ 常用回覆管理與批次匯入</span>
+        <button type="button" class="btn-modal-close" onclick="closeManageModal()">✕</button>
+      </div>
+
+      <!-- 分頁切換 -->
+      <div class="modal-tab-bar">
+        <button type="button" class="modal-tab-btn active" id="tabBtnBatch" onclick="switchModalTab('batch')">📥 10 筆匯入設定</button>
+        <button type="button" class="modal-tab-btn" id="tabBtnSingle" onclick="switchModalTab('single')">➕ 新增單筆</button>
+        <button type="button" class="modal-tab-btn" id="tabBtnList" onclick="switchModalTab('list')">📝 現有回覆清單</button>
+      </div>
+
+      <!-- Tab 1: 10 頁 x 10 欄位設定 -->
+      <div class="modal-tab-content active" id="tabContentBatch">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#f8fafc; padding:6px 8px; border-radius:6px; border:1px solid var(--border);">
+          <span style="font-size:12px; font-weight:700; color:#0f172a;">選擇管理頁數：</span>
+          <div class="modal-page-selector" id="modalPageSelector">
+            <!-- 1 ~ 10 page buttons -->
+          </div>
+        </div>
+
+        <div style="font-size:11.5px; color:#64748b; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+          <span>正在編輯：<b id="editingPageLabel" style="color:var(--primary-dark);">第 1 頁（欄位 #1 ~ #10）</b></span>
+          <button type="button" class="btn-reset-data" style="padding:1px 6px; font-size:10.5px;" onclick="clearCurrentModalPageSlots()">清空本頁 10 格</button>
+        </div>
+        
+        <div id="tenSlotsContainer" style="display:flex; flex-direction:column; gap:8px; max-height:330px; overflow-y:auto; padding-right:4px;">
+          <!-- 10 個卡位由 JS 動態生成 -->
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-top:1px solid var(--border); padding-top:8px; gap:6px; flex-wrap:wrap;">
+          <div style="display:flex; gap:4px;">
+            <button type="button" class="btn-reset-data" onclick="exportBackupJson()" title="將所有編輯好的常用回覆下載為 JSON 備份檔">💾 備份下載</button>
+            <button type="button" class="btn-reset-data" onclick="triggerImportJson()" title="還原上傳備份檔">📂 還原匯入</button>
+            <input type="file" id="backupFileInput" accept=".json" style="display:none;" onchange="handleImportFile(event)">
+            <button type="button" class="btn-reset-data" onclick="resetToDefaultReplies()">🔄 恢復官方</button>
+          </div>
+          <button type="button" class="btn-primary-modal" onclick="saveCurrentModalPageSlots()">💾 儲存本頁 10 筆回覆</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: 單筆新增 -->
+      <div class="modal-tab-content" id="tabContentSingle">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆標題：</label>
+            <input type="text" id="newReplyTitle" class="modal-input" placeholder="例如：常客優惠折扣說明">
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:#334155;">類別標籤：</label>
+            <select id="newReplyCat" class="modal-input" style="font-size:14px;">
+              <option value="💐">💐</option>
+              <option value="🌹">🌹</option>
+              <option value="🎂">🎂</option>
+              <option value="🍔">🍔</option>
+              <option value="🔥">🔥</option>
+              <option value="🚗">🚗</option>
+              <option value="⭐️">⭐️</option>
+              <option value="‼️">‼️</option>
+              <option value="❓">❓</option>
+              <option value="😊">😊</option>
+              <option value="👍">👍</option>
+              <option value="💙">💙</option>
+              <option value="❤️">❤️</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆內文：</label>
+            <textarea id="newReplyText" class="modal-textarea" style="height:100px;" placeholder="輸入完整回覆內容..."></textarea>
+          </div>
+          <button type="button" class="btn-primary-modal" style="width:100%; height:36px;" onclick="saveSingleReply()">
+            ➕ 儲存新增回覆
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 3: 現有列表管理 (可刪除) -->
+      <div class="modal-tab-content" id="tabContentList">
+        <div id="modalRepliesList" style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">
+          <!-- 動態渲染清單與刪除按鈕 -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 單筆編輯 Modal (Requirement 4: 編輯文字內容) -->
+  <div class="modal-backdrop" id="editModal" onclick="closeEditModalOnBg(event)">
+    <div class="modal-box">
+      <div class="modal-top">
+        <span class="modal-title">✏️ 編輯回覆內容</span>
+        <button type="button" class="btn-modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+      <input type="hidden" id="editReplyId">
+      <div style="display:flex; flex-direction:column; gap:9px;">
+        <div>
+          <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆標題：</label>
+          <input type="text" id="editReplyTitle" class="modal-input" placeholder="例如：玉山銀行匯款帳號">
+        </div>
+        <div>
+          <label style="font-size:11.5px; font-weight:700; color:#334155;">類別標籤：</label>
+          <select id="editReplyCat" class="modal-input" style="font-size:14px;">
+            <option value="💐">💐</option>
+            <option value="🌹">🌹</option>
+            <option value="🎂">🎂</option>
+            <option value="🍔">🍔</option>
+            <option value="🔥">🔥</option>
+            <option value="🚗">🚗</option>
+            <option value="⭐️">⭐️</option>
+            <option value="‼️">‼️</option>
+            <option value="❓">❓</option>
+            <option value="😊">😊</option>
+            <option value="👍">👍</option>
+            <option value="💙">💙</option>
+            <option value="❤️">❤️</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆文字內容：</label>
+          <textarea id="editReplyText" class="modal-textarea" style="height:120px;" placeholder="輸入回覆內容..."></textarea>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+          <button type="button" class="btn-reset-data" onclick="closeEditModal()">取消</button>
+          <button type="button" class="btn-primary-modal" onclick="saveEditReply()">💾 儲存修改</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 移動欄位與換頁數 Modal (長按3秒觸發) -->
+  <div class="modal-backdrop" id="moveModal" onclick="closeMoveModalOnBg(event)">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-top">
+        <span class="modal-title">📍 移動欄位與更換頁數</span>
+        <button type="button" class="btn-modal-close" onclick="closeMoveModal()">✕</button>
+      </div>
+
+      <!-- 正在移動的項目提示 -->
+      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; padding:9px 12px; margin-bottom:12px;">
+        <div style="font-size:11px; color:#64748b; margin-bottom:3px;">選取的回覆項目：</div>
+        <div id="moveItemPreview" style="font-size:13.5px; font-weight:800; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <!-- 項目標題 -->
+        </div>
+        <div style="font-size:11.5px; color:#0284c7; font-weight:700; margin-top:3px; display:flex; align-items:center; gap:4px;">
+          <span>📌 目前位置：</span>
+          <span id="moveSourceLocation" style="background:#e0f2fe; padding:1px 6px; border-radius:4px;">第 1 頁 - 欄位 #1</span>
+        </div>
+      </div>
+
+      <!-- 1. 本頁快速微調順序 -->
+      <div style="margin-bottom:14px; background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:9px 11px;">
+        <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">⚡ 本頁快速微調順序：</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:5px;">
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotRelative(-1)">⬆️ 上移</button>
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotRelative(1)">⬇️ 下移</button>
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotToExtremes('top')">🔝 移到最前</button>
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotToExtremes('bottom')">🔚 移到最後</button>
+        </div>
+      </div>
+
+      <!-- 2. 指定移動至其他頁數或欄位 -->
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:9px 11px;">
+        <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">🚀 指定跨頁／換欄位：</div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:600; color:#64748b; display:block; margin-bottom:3px;">目標頁數 (1~10)：</label>
+            <select id="targetPageSelect" class="modal-input" style="height:32px; font-size:12.5px;" onchange="updateTargetSlotOptions()">
+              <!-- 由 JS 動態生成 1 ~ 10 頁 -->
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:600; color:#64748b; display:block; margin-bottom:3px;">目標欄位 (#1~#10)：</label>
+            <select id="targetSlotSelect" class="modal-input" style="height:32px; font-size:12px;">
+              <!-- 由 JS 動態生成 1 ~ 10 格及該格預覽 -->
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-primary-modal" style="flex:1; justify-content:center; height:36px;" onclick="executeMove('swap')">
+            🔄 與目標互換
+          </button>
+          <button type="button" class="btn-primary-modal" style="flex:1; justify-content:center; height:36px; background:#0284c7;" onclick="executeMove('insert')">
+            📥 插入此位置
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮動提示 Toast -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">已複製！請直接貼到官方 LINE 對話框</span>
+  </div>
+
+  <script>
+    const TOTAL_PAGES = 10;
+    const SLOTS_PER_PAGE = 10;
+    let currentPage = 1;
+    let modalPage = 1;
+    let currentCategory = 'all';
+
+    const legacyCategoryMap = {
+      payment: '💙',
+      cake: '🎂',
+      pickup: '🚗',
+      delivery: '🚗',
+      flower: '💐',
+      addon: '‼️'
+    };
+
+    // 預設第 1 頁常用問題與回覆資料庫 (共 10 則)
+    const defaultPage1Replies = [
+      {
+        id: 'remit_info',
+        category: '💙',
+        title: '玉山銀行匯款帳號 (下單確認)',
+        text: `【匯款帳號資訊】
+銀行代號：808 玉山銀行
+戶名：梧藝工作室
+帳號：0123-940-888888
+
+匯款完成後再麻煩告知我們「帳號後五碼」與「匯款金額」，以便核對排單，感謝您！❤️`
+      },
+      {
+        id: 'cake_storage',
+        category: '🎂',
+        title: '蛋糕常溫與冷藏保存須知',
+        text: `【蛋糕保存方式提醒】
+我們的蛋糕皆為新鮮手作無添加防腐劑：
+1. 常溫離冷藏請勿超過 40 分鐘（若天氣炎熱建議加購保冰袋）。
+2. 取貨後請盡速冷藏保存，冷藏賞味期為 3 天內，冷凍可保存 7 天。`
+      },
+      {
+        id: 'pickup_info',
+        category: '🚗',
+        title: '門市自取地址與營業時間',
+        text: `【門市自取須知】
+門市地址：台北市大安區光復南路OO巷OO號
+取貨時間：週三至週日 12:00 - 19:30
+抵達時向櫃檯店員報「訂購人姓名與電話」即可領取蛋糕與花束喔！`
+      },
+      {
+        id: 'flower_care',
+        category: '💐',
+        title: '鮮花花束保水與照護說明',
+        text: `【花束照護小提醒】
+花束底部均附有保水花泥/水袋，建議取貨當天拆除包裝後將花莖剪斜角插水瓶，每日換水並放置於陰涼通風處，避免陽光直曬或冷氣出風口直吹喔！`
+      },
+      {
+        id: 'delivery_info',
+        category: '🚗',
+        title: '雙北汽車外送專送說明',
+        text: `【外送配送須知】
+雙北地區配合 Lalamove 汽車專送，依距離跳錶計算實報實銷。
+蛋糕為冷藏專送、花束會妥善固定，歡迎提供「確切外送地址與送達時間」為您試算運費喔！`
+      },
+      {
+        id: 'addon_acc',
+        category: '‼️',
+        title: '餐具／造型蠟燭／數字蠟燭說明',
+        text: `【餐具與蠟燭配件】
+蛋糕皆附贈「單支金細蠟燭 1 支」與蛋糕刀。
+若需要造型蠟燭($45/$55)、數字蠟燭($30/個)或額外盤叉餐具（2人$15/5人$30/10人$50），都可以幫您加購登記喔！`
+      },
+      {
+        id: 'thank_confirm',
+        category: '❤️',
+        title: '款項核對完成＆訂單確認成立',
+        text: `您好呀～已經收到您的匯款囉！款項核對無誤，訂單已為您排程排單製作！🌸
+取貨日前一天會再發送提醒訊息給您，非常感謝您的支持！`
+      },
+      {
+        id: 'burger_stock',
+        category: '🍔',
+        title: '現貨 🍔登記完成🍔',
+        text: `您好呀～已為您保留現貨並完成登記囉！🍔 請於約定時間內前來門市取貨，謝謝您！`
+      },
+      {
+        id: 'greeting_hello',
+        category: '😊',
+        title: '親切迎賓招呼語',
+        text: `您好呀～歡迎光臨梧藝！🌸 請問今天有想了解蛋糕、花束或是專屬客製甜點的服務嗎？很樂意為您介紹與服務喔！`
+      },
+      {
+        id: 'praise_thanks',
+        category: '👍',
+        title: '收到滿意好評感謝',
+        text: `太開心聽到您的喜歡了！看到您和朋友吃得開心就是我們最大的動力與幸福🥰 期待下次再為您製作美味的蛋糕與花禮！`
+      }
+    ];
+
+    // 初始化 10 頁 x 10 欄位資料結構
+    let pagesData = loadPagesDataFromStorage();
+
+    function loadPagesDataFromStorage() {
+      let data = {};
+      for (let p = 1; p <= TOTAL_PAGES; p++) {
+        data[p] = [];
+        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+          data[p].push(null);
+        }
+      }
+
+      try {
+        const saved = localStorage.getItem('wuyi_100_pages_data');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') {
+            for (let p = 1; p <= TOTAL_PAGES; p++) {
+              if (Array.isArray(parsed[p])) {
+                for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+                  const it = parsed[p][s];
+                  if (it) {
+                    it.category = legacyCategoryMap[it.category] || it.category || '⭐️';
+                  }
+                  data[p][s] = it || null;
+                }
+              }
+            }
+            return data;
+          }
+        }
+
+        // 舊格式無縫平移
+        const oldSaved = localStorage.getItem('wuyi_custom_replies');
+        let oldList = defaultPage1Replies;
+        if (oldSaved) {
+          try {
+            const pOld = JSON.parse(oldSaved);
+            if (Array.isArray(pOld) && pOld.length > 0) oldList = pOld;
+          } catch(e){}
+        }
+
+        oldList.forEach((item, idx) => {
+          const p = Math.floor(idx / 10) + 1;
+          const s = idx % 10;
+          if (p <= TOTAL_PAGES) {
+            item.category = legacyCategoryMap[item.category] || item.category || '⭐️';
+            data[p][s] = item;
+          }
+        });
+
+      } catch (e) {
+        console.error('Storage load error:', e);
+      }
+
+      return data;
+    }
+
+    function savePagesDataToStorage() {
+      try {
+        localStorage.setItem('wuyi_100_pages_data', JSON.stringify(pagesData));
+      } catch (e) {
+        console.error('Storage save error:', e);
+      }
+    }
+
+    // 渲染主畫面 10 頁切換列 (極簡 ◀ 1..10 ▶，支援懸停拖放換頁)
+    function renderMainPageNav() {
+      const container = document.getElementById('mainPagePills');
+      if (!container) return;
+
+      let html = `
+        <button type="button" class="btn-page-arrow" onclick="changeMainPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} title="上一頁">
+          ◀
+        </button>
+      `;
+
+      for (let p = 1; p <= TOTAL_PAGES; p++) {
+        html += `
+          <button type="button" 
+                  class="page-num-btn ${p === currentPage ? 'active' : ''}" 
+                  onclick="changeMainPage(${p})" 
+                  ondragover="handlePageButtonDragOver(event, ${p})"
+                  title="第 ${p} 頁 (拖曳懸停可切換)">
+            ${p}
+          </button>
+        `;
+      }
+
+      html += `
+        <button type="button" class="btn-page-arrow" onclick="changeMainPage(${currentPage + 1})" ${currentPage === TOTAL_PAGES ? 'disabled' : ''} title="下一頁">
+          ▶
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function changeMainPage(p) {
+      if (p < 1 || p > TOTAL_PAGES) return;
+      currentPage = p;
+      renderMainPageNav();
+      renderReplies();
+      // 切換分頁平滑滾動至列表頂部
+      const listEl = document.getElementById('repliesContainer');
+      if (listEl) {
+        listEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // 渲染主畫面回覆卡片
+    function renderReplies() {
+      const container = document.getElementById('repliesContainer');
+      if (!container) return;
+
+      const searchKeyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      const isFiltering = (currentCategory !== 'all' || searchKeyword.length > 0);
+
+      let itemsToRender = [];
+
+      if (isFiltering) {
+        // 搜尋或篩選時，跨全部 10 頁檢索
+        for (let p = 1; p <= TOTAL_PAGES; p++) {
+          pagesData[p].forEach((item, slotIdx) => {
+            if (!item) return;
+            const matchCategory = (currentCategory === 'all' || item.category === currentCategory);
+            const matchKeyword = !searchKeyword || item.title.toLowerCase().includes(searchKeyword) || item.text.toLowerCase().includes(searchKeyword);
+            if (matchCategory && matchKeyword) {
+              itemsToRender.push({ ...item, pageNum: p, slotIndex: slotIdx });
+            }
+          });
+        }
+
+        if (itemsToRender.length === 0) {
+          container.innerHTML = `
+            <div style="text-align:center; padding:30px 10px; color:#94a3b8; font-size:13px; background:#fff; border-radius:8px;">
+              查無相關常用回覆，建議上方直接打字或語音輸入，點擊「AI 潤飾」！
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = itemsToRender.map(item => buildReplyCardHtml(item, item.pageNum, item.slotIndex)).join('');
+      } else {
+        // 一般模式：展示當前頁的 10 個欄位
+        const currentSlots = pagesData[currentPage];
+        let cardsHtml = '';
+
+        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+          const item = currentSlots[s];
+          if (item) {
+            cardsHtml += buildReplyCardHtml(item, currentPage, s);
+          } else {
+            // 空欄位卡片 (點擊可立即編輯填入，亦可作為拖放目標)
+            cardsHtml += `
+              <div class="empty-slot-card" 
+                   id="emptyCard_${currentPage}_${s}" 
+                   onclick="openEditModal(${currentPage}, ${s})"
+                   ondragover="handleDragOver(event)"
+                   ondragleave="handleDragLeave(event)"
+                   ondrop="handleDrop(event, ${currentPage}, ${s})">
+                <span style="font-size:12px; color:#94a3b8; font-weight:600;">＋ 空欄位（點擊填寫，可拖曳換位）</span>
+                <button type="button" class="btn-card-edit" style="pointer-events:none; width:auto; padding:0 6px; font-size:10.5px;">
+                  <span>✏️ 填寫</span>
+                </button>
+              </div>
+            `;
+          }
+        }
+
+        container.innerHTML = cardsHtml;
+      }
+    }
+
+    function buildReplyCardHtml(item, pageNum, slotIdx) {
+      const emoji = item.category || '⭐️';
+      const titleText = escapeHtml(item.title || '常用回覆');
+      // 只要標題含有 emoji 就不重複加，否則前面帶上該類別的 emoji
+      const displayTitle = (item.title && /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}]/u.test(item.title))
+        ? titleText
+        : `<span class="reply-emoji-tag">${emoji}</span> ${titleText}`;
+
+      return `
+        <div class="reply-card"
+             id="replyCard_${pageNum}_${slotIdx}"
+             data-page="${pageNum}"
+             data-slot="${slotIdx}"
+             title="長按 3 秒可移動欄位／換頁數；也可直接滑鼠拖曳換位"
+             onmousedown="startLongPress(event, ${pageNum}, ${slotIdx})"
+             onmouseup="cancelLongPress()"
+             onmouseleave="cancelLongPress()"
+             ontouchstart="handleTouchStart(event, ${pageNum}, ${slotIdx})"
+             ontouchmove="handleTouchMove(event)"
+             ontouchend="cancelLongPress()"
+             ontouchcancel="cancelLongPress()"
+             draggable="true"
+             ondragstart="handleDragStart(event, ${pageNum}, ${slotIdx})"
+             ondragover="handleDragOver(event)"
+             ondragleave="handleDragLeave(event)"
+             ondrop="handleDrop(event, ${pageNum}, ${slotIdx})">
+          <div class="reply-card-left">
+            <span class="reply-card-title">${displayTitle}</span>
+          </div>
+          <div class="reply-card-right">
+            <!-- 編輯按鈕 -->
+            <button type="button" class="btn-card-edit" onclick="openEditModal(${pageNum}, ${slotIdx})" title="編輯文字內容">
+              <span>✏️</span>
+            </button>
+            <!-- 複製按鈕 (防閃退安全複製) -->
+            <button type="button" class="btn-main-copy" id="btnCopy_${item.id || (pageNum + '_' + slotIdx)}" onclick="copyTextDirect(this, \`${encodeURIComponent(item.text)}\`)">
+              <span>📋 複製</span>
+            </button>
+            <!-- 送出按鈕 (防閃退安全呼叫 LINE OA) -->
+            <button type="button" class="btn-card-send" onclick="sendDirectToLine(\`${encodeURIComponent(item.text)}\`)" title="複製並開啟官方 LINE 對話框貼上">
+              <span>🚀 送出</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // 分類篩選切換
+    function selectCategory(cat, el) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => btn.classList.remove('active'));
+      el.classList.add('active');
+      renderReplies();
+    }
+
+    function filterReplies() {
+      renderReplies();
+    }
+
+    function fillToDraft(encodedText) {
+      const text = decodeURIComponent(encodedText);
+      document.getElementById('draftInput').value = text;
+      showToast('已填入上方編輯框，可微調後再複製');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ================= 終極防閃退安全剪貼簿複製 (Safe Clipboard) =================
+    let isCopying = false;
+    let toastTimeout = null;
+
+    function performSafeCopy(text, onSuccess) {
+      if (isCopying) return;
+      isCopying = true;
+
+      const finish = () => {
+        isCopying = false;
+        if (typeof onSuccess === 'function') {
+          try { onSuccess(); } catch (err) { console.error('Callback error:', err); }
+        }
+      };
+
+      // 現代 Clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+          .then(finish)
+          .catch(() => {
+            fallbackExecCopy(text, finish);
+          });
+      } else {
+        fallbackExecCopy(text, finish);
+      }
+    }
+
+    // 解決 iOS Safari 與 Chrome 座標超出或鍵盤彈出導致的「閃退」
+    function fallbackExecCopy(text, onComplete) {
+      let ta = null;
+      try {
+        ta = document.createElement('textarea');
+        ta.value = text;
+        // 關鍵：唯讀且固定在可見區域微小透明層，絕不使用 -9999px 導致 WebKit 繪圖樹崩潰
+        ta.setAttribute('readonly', '');
+        ta.setAttribute('contenteditable', 'false');
+        ta.style.position = 'fixed';
+        ta.style.top = '0';
+        ta.style.left = '0';
+        ta.style.width = '20px';
+        ta.style.height = '20px';
+        ta.style.padding = '0';
+        ta.style.border = 'none';
+        ta.style.outline = 'none';
+        ta.style.boxShadow = 'none';
+        ta.style.background = 'transparent';
+        ta.style.opacity = '0.01';
+        ta.style.fontSize = '16px'; // 徹底杜絕 iOS Safari 視口跳動與放大閃退
+        ta.style.zIndex = '-1';
+
+        document.body.appendChild(ta);
+
+        if (navigator.userAgent.match(/ipad|iphone/i)) {
+          const range = document.createRange();
+          range.selectNodeContents(ta);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          ta.setSelectionRange(0, 999999);
+        } else {
+          ta.focus();
+          ta.select();
+        }
+
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Safe fallback copy error:', err);
+      } finally {
+        if (ta && ta.parentNode) {
+          ta.parentNode.removeChild(ta);
+        }
+        if (onComplete) onComplete();
+      }
+    }
+
+    // 防閃退複製按鈕
+    function copyTextDirect(btn, encodedText) {
+      const text = decodeURIComponent(encodedText);
+      performSafeCopy(text, () => {
+        if (btn) {
+          btn.classList.add('copied');
+          btn.innerHTML = '<span>✓ 已複製</span>';
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<span>📋 複製</span>';
+          }, 1500);
+        }
+        showToast('已複製！請直接在官方 LINE 對話框 貼上發送');
+      });
+    }
+
+    // 防閃退送出按鈕 (杜絕 window.location.href 中斷進程導致的閃退)
+    function sendDirectToLine(encodedText) {
+      const text = decodeURIComponent(encodedText);
+      performSafeCopy(text, () => {
+        showToast('🚀 已複製文字！正在開啟官方 LINE');
+        try {
+          const lineUrl = `https://line.me/R/oaMessage/@230fpemy/?${encodeURIComponent(text)}`;
+          // 使用乾淨的臨時 <a> 標籤觸發，安全不中斷當前網頁行程
+          const a = document.createElement('a');
+          a.href = lineUrl;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            if (a.parentNode) a.parentNode.removeChild(a);
+          }, 300);
+        } catch (e) {
+          console.error('Line open error:', e);
+        }
+      });
+    }
+
+    function copyDraftText() {
+      const text = document.getElementById('draftInput').value.trim();
+      if (!text) {
+        showToast('請先輸入或語音錄入文字再複製！', '⚠️');
+        return;
+      }
+      performSafeCopy(text, () => {
+        showToast('已複製編輯框內容！請至 LINE 貼上');
+      });
+    }
+
+    // ================= 編輯單筆 Modal 邏輯 =================
+    let editingPage = 1;
+    let editingSlot = 0;
+
+    function openEditModal(pageNum, slotIdx) {
+      editingPage = pageNum;
+      editingSlot = slotIdx;
+
+      const item = pagesData[pageNum][slotIdx] || { title: '', category: 'payment', text: '' };
+      document.getElementById('editReplyId').value = `${pageNum}_${slotIdx}`;
+      document.getElementById('editReplyTitle').value = item.title || '';
+      document.getElementById('editReplyCat').value = item.category || 'payment';
+      document.getElementById('editReplyText').value = item.text || '';
+
+      const modalTitle = document.querySelector('#editModal .modal-title');
+      if (modalTitle) {
+        modalTitle.textContent = `✏️ 編輯回覆：第 ${pageNum} 頁 - 第 ${slotIdx + 1} 欄位`;
+      }
+
+      document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('show');
+    }
+
+    function closeEditModalOnBg(e) {
+      if (e.target.id === 'editModal') closeEditModal();
+    }
+
+    function saveEditReply() {
+      const title = document.getElementById('editReplyTitle').value.trim();
+      const cat = document.getElementById('editReplyCat').value;
+      const text = document.getElementById('editReplyText').value.trim();
+
+      if (!title && !text) {
+        // 清空該欄位
+        pagesData[editingPage][editingSlot] = null;
+        savePagesDataToStorage();
+        renderMainPageNav();
+        renderReplies();
+        closeEditModal();
+        showToast('已清空該欄位');
+        return;
+      }
+
+      pagesData[editingPage][editingSlot] = {
+        id: `slot_${editingPage}_${editingSlot}`,
+        category: cat || '⭐️',
+        title: title || `回覆 P${editingPage}-${editingSlot + 1}`,
+        text: text
+      };
+
+      savePagesDataToStorage();
+      renderMainPageNav();
+      renderReplies();
+      closeEditModal();
+      showToast('✅ 已成功儲存修改！');
+    }
+
+    // ================= 常用回覆管理 Modal (10 頁 x 10 欄位) =================
+    function openManageModal() {
+      modalPage = currentPage;
+      document.getElementById('manageModal').classList.add('show');
+      renderModalPageSelector();
+      renderModalTenSlots();
+      renderModalList();
+    }
+
+    function closeManageModal() {
+      document.getElementById('manageModal').classList.remove('show');
+    }
+
+    function closeModalOnBg(e) {
+      if (e.target.id === 'manageModal') closeManageModal();
+    }
+
+    function switchModalTab(tab) {
+      ['batch', 'single', 'list'].forEach(t => {
+        document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('active', t === tab);
+        document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('active', t === tab);
+      });
+      if (tab === 'batch') {
+        renderModalPageSelector();
+        renderModalTenSlots();
+      }
+      if (tab === 'list') renderModalList();
+    }
+
+    function renderModalPageSelector() {
+      const container = document.getElementById('modalPageSelector');
+      if (!container) return;
+
+      let html = '';
+      for (let p = 1; p <= TOTAL_PAGES; p++) {
+        html += `
+          <button type="button" class="modal-page-btn ${p === modalPage ? 'active' : ''}" onclick="changeModalPage(${p})">
+            ${p}
+          </button>
+        `;
+      }
+      container.innerHTML = html;
+
+      const lbl = document.getElementById('editingPageLabel');
+      if (lbl) lbl.textContent = `第 ${modalPage} 頁（欄位 #1 ~ #10）`;
+    }
+
+    function changeModalPage(p) {
+      modalPage = p;
+      renderModalPageSelector();
+      renderModalTenSlots();
+    }
+
+    function renderModalTenSlots() {
+      const container = document.getElementById('tenSlotsContainer');
+      if (!container) return;
+
+      const catOptions = ['💐', '🌹', '🎂', '🍔', '🔥', '🚗', '⭐️', '‼️', '❓', '😊', '👍', '💙', '❤️'].map(e => ({ value: e, label: e }));
+
+      const currentSlots = pagesData[modalPage];
+      let html = '';
+
+      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+        const item = currentSlots[i] || { title: '', category: '⭐️', text: '' };
+        html += `
+          <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:7px 9px; display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:11.5px; font-weight:700; color:#1e293b;">📌 欄位 #${i + 1} (頁碼 P${modalPage})</span>
+              <select id="slotCat_${i}" class="modal-input" style="width:auto; height:24px; padding:0 6px; font-size:11px;">
+                ${catOptions.map(opt => `<option value="${opt.value}" ${item.category === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
+              </select>
+            </div>
+            <input type="text" id="slotTitle_${i}" class="modal-input" placeholder="標題 (例：玉山銀行匯款帳號)" value="${escapeHtml(item.title || '')}" style="height:25px; font-size:12px;">
+            <textarea id="slotText_${i}" class="modal-textarea" placeholder="回覆內文內容..." style="height:50px; font-size:12px; margin:0;">${escapeHtml(item.text || '')}</textarea>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function saveCurrentModalPageSlots() {
+      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+        const titleEl = document.getElementById(`slotTitle_${i}`);
+        const catEl = document.getElementById(`slotCat_${i}`);
+        const textEl = document.getElementById(`slotText_${i}`);
+
+        if (titleEl && textEl) {
+          const title = titleEl.value.trim();
+          const text = textEl.value.trim();
+          const cat = catEl ? catEl.value : '⭐️';
+
+          if (title || text) {
+            pagesData[modalPage][i] = {
+              id: `slot_${modalPage}_${i}`,
+              category: cat,
+              title: title || `回覆 P${modalPage}-${i + 1}`,
+              text: text
+            };
+          } else {
+            pagesData[modalPage][i] = null;
+          }
+        }
+      }
+
+      savePagesDataToStorage();
+      renderMainPageNav();
+      renderReplies();
+      closeManageModal();
+      showToast(`🎉 成功儲存第 ${modalPage} 頁的 10 個欄位！`);
+    }
+
+    function clearCurrentModalPageSlots() {
+      if (!confirm(`確定要清空第 ${modalPage} 頁的所有欄位嗎？`)) return;
+      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+        const t = document.getElementById(`slotTitle_${i}`);
+        const txt = document.getElementById(`slotText_${i}`);
+        if (t) t.value = '';
+        if (txt) txt.value = '';
+      }
+      showToast(`已清空第 ${modalPage} 頁欄位表格（點下方儲存即生效）`);
+    }
+
+    // 單筆新增（自動放入第一個空卡位）
+    function saveSingleReply() {
+      const title = document.getElementById('newReplyTitle').value.trim();
+      const cat = document.getElementById('newReplyCat').value;
+      const text = document.getElementById('newReplyText').value.trim();
+
+      if (!title || !text) {
+        showToast('請填寫標題與回覆內文！', '⚠️');
+        return;
+      }
+
+      // 找尋第一個空位
+      let targetP = -1, targetS = -1;
+      for (let p = 1; p <= TOTAL_PAGES; p++) {
+        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+          if (!pagesData[p][s]) {
+            targetP = p; targetS = s;
+            break;
+          }
+        }
+        if (targetP !== -1) break;
+      }
+
+      if (targetP === -1) {
+        showToast('全部 100 個欄位皆已滿！請先編輯或清空部分欄位', '⚠️');
+        return;
+      }
+
+      pagesData[targetP][targetS] = {
+        id: `slot_${targetP}_${targetS}`,
+        category: cat || '⭐️',
+        title: title,
+        text: text
+      };
+
+      savePagesDataToStorage();
+      currentPage = targetP;
+      renderMainPageNav();
+      renderReplies();
+      closeManageModal();
+      document.getElementById('newReplyTitle').value = '';
+      document.getElementById('newReplyText').value = '';
+      showToast(`✅ 已自動存入第 ${targetP} 頁 - 欄位 #${targetS + 1}！`);
+    }
+
+    function renderModalList() {
+      const listEl = document.getElementById('modalRepliesList');
+      if (!listEl) return;
+
+      let allItems = [];
+      for (let p = 1; p <= TOTAL_PAGES; p++) {
+        pagesData[p].forEach((item, slotIdx) => {
+          if (item) allItems.push({ ...item, page: p, slot: slotIdx });
+        });
+      }
+
+      if (allItems.length === 0) {
+        listEl.innerHTML = '<div style="font-size:12px; color:#94a3b8; text-align:center; padding:15px;">目前尚無設定任何回覆</div>';
+        return;
+      }
+
+      listEl.innerHTML = allItems.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #cbd5e1; padding:6px 9px; border-radius:6px;">
+          <div style="font-size:12px; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:320px;">
+            <b style="color:var(--primary-dark);">P${item.page}-${item.slot + 1}</b> ${escapeHtml(item.title)}
+          </div>
+          <button type="button" onclick="deleteReplyByCoordinate(${item.page}, ${item.slot})" style="background:#fee2e2; color:#ef4444; border:none; border-radius:4px; padding:2px 7px; font-size:10.5px; font-weight:700; cursor:pointer;">
+            刪除
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function deleteReplyByCoordinate(p, s) {
+      if (!confirm(`確定要刪除 P${p}-${s + 1} 這則回覆嗎？`)) return;
+      pagesData[p][s] = null;
+      savePagesDataToStorage();
+      renderMainPageNav();
+      renderReplies();
+      renderModalList();
+      showToast('已刪除該欄位回覆');
+    }
+
+    function resetToDefaultReplies() {
+      if (!confirm('確定要恢復預設官方範本嗎？所有頁面自訂內容將被重置')) return;
+      localStorage.removeItem('wuyi_100_pages_data');
+      localStorage.removeItem('wuyi_custom_replies');
+      pagesData = loadPagesDataFromStorage();
+      currentPage = 1;
+      renderMainPageNav();
+      renderReplies();
+      renderModalPageSelector();
+      renderModalTenSlots();
+      renderModalList();
+      showToast('已恢復官方預設範本');
+    }
+
+    // AI 潤飾功能
+    function polishWithAI() {
+      const input = document.getElementById('draftInput');
+      const raw = input.value.trim();
+      if (!raw) {
+        showToast('請先輸入或語音錄入簡短文字！', '⚠️');
+        return;
+      }
+      showToast('✨ AI 正在潤飾溫柔客服口吻...', '⏳');
+
+      setTimeout(() => {
+        let polished = `您好呀～🌸\n${raw}\n\n您再麻煩幫我們確認一下喔，有任何需要調整或疑問隨時跟我們說，謝謝您！❤️`;
+        input.value = polished;
+        showToast('✨ 已完成 AI 潤飾！點擊右側「複製文字」即可貼到 LINE');
+      }, 300);
+    }
+
+    // 語音輸入 Web Speech API
+    let recognition = null;
+    let isRecording = false;
+
+    function toggleVoiceInput() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('您的瀏覽器未支援語音辨識，請使用 Chrome 瀏覽器。');
+        return;
+      }
+
+      if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'zh-TW';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          const input = document.getElementById('draftInput');
+          input.value = input.value ? (input.value + ' ' + transcript) : transcript;
+          showToast('🎤 語音轉文字完成！可點擊 AI 潤飾');
+        };
+
+        recognition.onend = () => { isRecording = false; updateVoiceUI(); };
+        recognition.onerror = () => { isRecording = false; updateVoiceUI(); };
+      }
+
+      if (isRecording) {
+        recognition.stop();
+        isRecording = false;
+      } else {
+        recognition.start();
+        isRecording = true;
+      }
+      updateVoiceUI();
+    }
+
+    function updateVoiceUI() {
+      const btn = document.getElementById('btnVoice');
+      const txt = document.getElementById('voiceText');
+      if (isRecording) {
+        btn.classList.add('recording');
+        txt.textContent = '聆聽中...停止';
+      } else {
+        btn.classList.remove('recording');
+        txt.textContent = '語音輸入';
+      }
+    }
+
+    // ================= 訂單報價試算器邏輯 =================
+    const quoteState = {
+      hasFlower390: false,
+      customFlowerPrice: 0,
+      hasBag: false,
+      cakePrice: 0,
+      hasIceBag: false,
+      addons: { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0 }
+    };
+
+    function toggleQuoteCollapse() {
+      document.getElementById('quoteCollapse').classList.toggle('open');
+    }
+
+    function toggleFlower() {
+      quoteState.hasFlower390 = !quoteState.hasFlower390;
+      document.getElementById('btnFlower').classList.toggle('active', quoteState.hasFlower390);
+      if (quoteState.hasFlower390) document.getElementById('flowerCustomPrice').value = '';
+      calcQuote();
+    }
+
+    function onFlowerCustomInput() {
+      const val = parseInt(document.getElementById('flowerCustomPrice').value, 10);
+      quoteState.customFlowerPrice = (!isNaN(val) && val > 0) ? val : 0;
+      if (quoteState.customFlowerPrice > 0) {
+        quoteState.hasFlower390 = false;
+        document.getElementById('btnFlower').classList.remove('active');
+      }
+      calcQuote();
+    }
+
+    function toggleBag() {
+      quoteState.hasBag = !quoteState.hasBag;
+      document.getElementById('btnBag').classList.toggle('active', quoteState.hasBag);
+      calcQuote();
+    }
+
+    function setCakePreset(price) {
+      if (quoteState.cakePrice === price) {
+        quoteState.cakePrice = 0;
+        document.getElementById('cakeCustomPrice').value = '';
+      } else {
+        quoteState.cakePrice = price;
+        document.getElementById('cakeCustomPrice').value = price;
+      }
+      updateCakeBtnUI();
+      calcQuote();
+    }
+
+    function onCakeCustomInput() {
+      const val = parseInt(document.getElementById('cakeCustomPrice').value, 10);
+      quoteState.cakePrice = (!isNaN(val) && val > 0) ? val : 0;
+      updateCakeBtnUI();
+      calcQuote();
+    }
+
+    function updateCakeBtnUI() {
+      document.getElementById('cp760').classList.toggle('active', quoteState.cakePrice === 760);
+      document.getElementById('cp1030').classList.toggle('active', quoteState.cakePrice === 1030);
+      document.getElementById('cp1060').classList.toggle('active', quoteState.cakePrice === 1060);
+    }
+
+    function cycleAddon(key, unitPrice, label) {
+      quoteState.addons[key] = (quoteState.addons[key] + 1) % 6; // 0 ~ 5 循環
+      const count = quoteState.addons[key];
+      const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c45: 'btnC45', c55: 'btnC55' };
+      const btn = document.getElementById(btnMap[key]);
+
+      if (count === 0) {
+        btn.classList.remove('active');
+        btn.textContent = `${label} +$${unitPrice}`;
+      } else {
+        btn.classList.add('active');
+        btn.textContent = `${label} x${count} +$${count * unitPrice}`;
+      }
+      calcQuote();
+    }
+
+    function toggleIceBag() {
+      quoteState.hasIceBag = !quoteState.hasIceBag;
+      document.getElementById('btnIce').classList.toggle('active', quoteState.hasIceBag);
+      calcQuote();
+    }
+
+    function getQuoteSummary() {
+      let items = [];
+      let total = 0;
+
+      let fPrice = quoteState.hasFlower390 ? 390 : quoteState.customFlowerPrice;
+      if (fPrice > 0) { items.push(`花束$${fPrice}`); total += fPrice; }
+      if (quoteState.hasBag) { items.push(`提袋$40`); total += 40; }
+      if (quoteState.cakePrice > 0) { items.push(`蛋糕$${quoteState.cakePrice}`); total += quoteState.cakePrice; }
+
+      const addonConfigs = {
+        u2: { name: '2人餐具', price: 15 },
+        u5: { name: '5人餐具', price: 30 },
+        u10: { name: '10人餐具', price: 50 },
+        c45: { name: '蠟燭', price: 45 },
+        c55: { name: '蠟燭', price: 55 }
+      };
+
+      Object.keys(quoteState.addons).forEach(k => {
+        const cnt = quoteState.addons[k];
+        if (cnt > 0) {
+          const p = cnt * addonConfigs[k].price;
+          items.push(cnt === 1 ? `${addonConfigs[k].name}$${p}` : `${addonConfigs[k].name}x${cnt}$${p}`);
+          total += p;
+        }
+      });
+
+      if (quoteState.hasIceBag) { items.push(`保冰袋$100`); total += 100; }
+
+      return { items, total };
+    }
+
+    function calcQuote() {
+      const { total } = getQuoteSummary();
+      document.getElementById('totalBadge').textContent = `加總 $${total}`;
+    }
+
+    function buildQuoteText() {
+      const { items, total } = getQuoteSummary();
+      const list = items.length > 0 ? items.join('\n') + `\n總共$${total}` : `總共$${total}`;
+      return `您好呀～\n幫您加總一下\n\n${list}\n\n您再麻煩確認一下對不對喔\n謝謝您`;
+    }
+
+    function copyQuoteText() {
+      const { items } = getQuoteSummary();
+      if (items.length === 0) {
+        showToast('請先選擇或輸入至少一項品項金額！', '⚠️');
+        return;
+      }
+      const text = buildQuoteText();
+      performSafeCopy(text, () => {
+        showToast('已複製報價文案！請直接貼到官方 LINE 對話框');
+      });
+    }
+
+    function resetQuote() {
+      quoteState.hasFlower390 = false;
+      quoteState.customFlowerPrice = 0;
+      quoteState.hasBag = false;
+      quoteState.cakePrice = 0;
+      quoteState.hasIceBag = false;
+      quoteState.addons = { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0 };
+
+      document.getElementById('btnFlower').classList.remove('active');
+      document.getElementById('flowerCustomPrice').value = '';
+      document.getElementById('btnBag').classList.remove('active');
+      document.getElementById('cakeCustomPrice').value = '';
+      updateCakeBtnUI();
+      document.getElementById('btnIce').classList.remove('active');
+
+      ['u2', 'u5', 'u10', 'c45', 'c55'].forEach(k => {
+        const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c45: 'btnC45', c55: 'btnC55' };
+        const labelMap = { u2: '2人餐具 +$15', u5: '5人餐具 +$30', u10: '10人餐具 +$50', c45: '蠟燭 $45', c55: '蠟燭 $55' };
+        const b = document.getElementById(btnMap[k]);
+        b.classList.remove('active');
+        b.textContent = labelMap[k];
+      });
+
+      calcQuote();
+      showToast('已重設報價金額');
+    }
+
+    function showToast(msg, icon = '✅') {
+      const t = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon;
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    // ================= 長按 3 秒移動欄位 / 換頁數 ＆ 拖曳排序 =================
+    let longPressTimer = null;
+    let longPressCard = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let movingPage = 1;
+    let movingSlot = 0;
+    let draggedCoord = null;
+
+    function startLongPress(e, pageNum, slotIdx) {
+      if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('textarea')) {
+        return;
+      }
+
+      cancelLongPress();
+      longPressCard = { page: pageNum, slot: slotIdx };
+
+      const cardEl = document.getElementById(`replyCard_${pageNum}_${slotIdx}`);
+      if (cardEl) {
+        cardEl.classList.add('pressing');
+      }
+
+      // 3秒 (3000ms) 長按計時
+      longPressTimer = setTimeout(() => {
+        cancelLongPress();
+        if (navigator.vibrate) {
+          try { navigator.vibrate([60, 50, 60]); } catch (err) {}
+        }
+        openMoveModal(pageNum, slotIdx);
+      }, 3000);
+    }
+
+    function cancelLongPress() {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      document.querySelectorAll('.reply-card.pressing').forEach(el => el.classList.remove('pressing'));
+    }
+
+    function handleTouchStart(e, pageNum, slotIdx) {
+      if (e.touches && e.touches[0]) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
+      startLongPress(e, pageNum, slotIdx);
+    }
+
+    function handleTouchMove(e) {
+      if (!longPressTimer) return;
+      if (e.touches && e.touches[0]) {
+        const dist = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
+        if (dist > 14) {
+          cancelLongPress();
+        }
+      }
+    }
+
+    // 移動與換頁 Modal 控制
+    function openMoveModal(p, s) {
+      movingPage = p;
+      movingSlot = s;
+
+      const item = pagesData[p]?.[s];
+      if (!item) return;
+
+      const previewEl = document.getElementById('moveItemPreview');
+      if (previewEl) {
+        const emoji = item.category || '⭐️';
+        previewEl.innerHTML = `<span class="reply-emoji-tag">${emoji}</span> ${escapeHtml(item.title || '常用回覆')}`;
+      }
+
+      const locEl = document.getElementById('moveSourceLocation');
+      if (locEl) {
+        locEl.textContent = `第 ${p} 頁 - 欄位 #${s + 1}`;
+      }
+
+      const pageSelect = document.getElementById('targetPageSelect');
+      if (pageSelect) {
+        let html = '';
+        for (let i = 1; i <= TOTAL_PAGES; i++) {
+          html += `<option value="${i}" ${i === p ? 'selected' : ''}>第 ${i} 頁</option>`;
+        }
+        pageSelect.innerHTML = html;
+      }
+
+      updateTargetSlotOptions();
+      document.getElementById('moveModal')?.classList.add('show');
+    }
+
+    function updateTargetSlotOptions() {
+      const pageSelect = document.getElementById('targetPageSelect');
+      const slotSelect = document.getElementById('targetSlotSelect');
+      if (!pageSelect || !slotSelect) return;
+
+      const targetP = parseInt(pageSelect.value, 10);
+      let html = '';
+      for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+        const item = pagesData[targetP]?.[s];
+        let desc = '(空欄位)';
+        if (item && item.title) {
+          desc = `${item.category || ''} ${item.title}`;
+          if (desc.length > 15) desc = desc.slice(0, 15) + '...';
+        }
+        const isCurrent = (targetP === movingPage && s === movingSlot);
+        html += `<option value="${s}" ${s === movingSlot && targetP !== movingPage ? 'selected' : ''}>
+          #${s + 1} ${escapeHtml(desc)} ${isCurrent ? '👈 目前' : ''}
+        </option>`;
+      }
+      slotSelect.innerHTML = html;
+    }
+
+    function closeMoveModal() {
+      document.getElementById('moveModal')?.classList.remove('show');
+    }
+
+    function closeMoveModalOnBg(e) {
+      if (e.target.id === 'moveModal') closeMoveModal();
+    }
+
+    // 快捷相對微調順序
+    function moveSlotRelative(direction) {
+      const targetSlot = movingSlot + direction;
+      if (targetSlot < 0 || targetSlot >= SLOTS_PER_PAGE) {
+        showToast(direction < 0 ? '已經在最上方了！' : '已經在最下方了！', '⚠️');
+        return;
+      }
+
+      const temp = pagesData[movingPage][targetSlot];
+      pagesData[movingPage][targetSlot] = pagesData[movingPage][movingSlot];
+      pagesData[movingPage][movingSlot] = temp;
+
+      savePagesDataToStorage();
+      movingSlot = targetSlot;
+      renderMainPageNav();
+      renderReplies();
+      openMoveModal(movingPage, movingSlot);
+      showToast(`已移動至第 ${movingSlot + 1} 格！`);
+    }
+
+    function moveSlotToExtremes(pos) {
+      const targetSlot = (pos === 'top') ? 0 : (SLOTS_PER_PAGE - 1);
+      if (targetSlot === movingSlot) {
+        showToast(pos === 'top' ? '已經在最前格了！' : '已經在最後格了！', '⚠️');
+        return;
+      }
+
+      const item = pagesData[movingPage].splice(movingSlot, 1)[0];
+      if (pos === 'top') {
+        pagesData[movingPage].unshift(item);
+      } else {
+        pagesData[movingPage].push(item);
+      }
+
+      savePagesDataToStorage();
+      movingSlot = targetSlot;
+      renderMainPageNav();
+      renderReplies();
+      openMoveModal(movingPage, movingSlot);
+      showToast(pos === 'top' ? '已移到最前格！' : '已移到最後格！');
+    }
+
+    // 指定跨頁/跨格移動 (互換 或 插入)
+    function executeMove(action) {
+      const targetPage = parseInt(document.getElementById('targetPageSelect').value, 10);
+      const targetSlot = parseInt(document.getElementById('targetSlotSelect').value, 10);
+
+      if (targetPage === movingPage && targetSlot === movingSlot) {
+        showToast('目標位置與目前位置相同！', '⚠️');
+        return;
+      }
+
+      const srcItem = pagesData[movingPage][movingSlot];
+
+      if (action === 'swap') {
+        const destItem = pagesData[targetPage][targetSlot];
+        pagesData[targetPage][targetSlot] = srcItem;
+        pagesData[movingPage][movingSlot] = destItem;
+      } else if (action === 'insert') {
+        if (targetPage === movingPage) {
+          pagesData[movingPage].splice(movingSlot, 1);
+          pagesData[movingPage].splice(targetSlot, 0, srcItem);
+        } else {
+          pagesData[movingPage][movingSlot] = null;
+          pagesData[targetPage].splice(targetSlot, 0, srcItem);
+          pagesData[targetPage].length = SLOTS_PER_PAGE;
+        }
+      }
+
+      savePagesDataToStorage();
+      currentPage = targetPage;
+      renderMainPageNav();
+      renderReplies();
+      closeMoveModal();
+      showToast(`🎉 成功移動至第 ${targetPage} 頁 - 欄位 #${targetSlot + 1}！`);
+    }
+
+    // HTML5 滑鼠拖曳排序
+    function handleDragStart(e, pageNum, slotIdx) {
+      draggedCoord = { page: pageNum, slot: slotIdx };
+      e.dataTransfer.effectAllowed = 'move';
+      const card = document.getElementById(`replyCard_${pageNum}_${slotIdx}`);
+      card?.classList.add('dragging');
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const target = e.currentTarget;
+      if (target && !target.classList.contains('drag-over')) {
+        target.classList.add('drag-over');
+      }
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget?.classList.remove('drag-over');
+    }
+
+    function handleDrop(e, targetPage, targetSlot) {
+      e.preventDefault();
+      e.currentTarget?.classList.remove('drag-over');
+      document.querySelectorAll('.reply-card.dragging').forEach(el => el.classList.remove('dragging'));
+
+      if (!draggedCoord) return;
+      const srcP = draggedCoord.page;
+      const srcS = draggedCoord.slot;
+      if (srcP === targetPage && srcS === targetSlot) return;
+
+      const temp = pagesData[targetPage][targetSlot];
+      pagesData[targetPage][targetSlot] = pagesData[srcP][srcS];
+      pagesData[srcP][srcS] = temp;
+
+      savePagesDataToStorage();
+      currentPage = targetPage;
+      renderMainPageNav();
+      renderReplies();
+      showToast(`🎉 成功調換順序至第 ${targetPage} 頁 - 欄位 #${targetSlot + 1}！`);
+      draggedCoord = null;
+    }
+
+    function handlePageButtonDragOver(e, p) {
+      e.preventDefault();
+      if (currentPage !== p) {
+        changeMainPage(p);
+      }
+    }
+
+    // ================= 分割畫面模式切換 (靠右顯示 / 靠下顯示) =================
+    function setSplitMode(mode) {
+      document.body.classList.remove('mode-right', 'mode-bottom');
+      document.body.classList.add(`mode-${mode}`);
+
+      const btnR = document.getElementById('btnSplitRight');
+      const btnB = document.getElementById('btnSplitBottom');
+      if (btnR) btnR.classList.toggle('active', mode === 'right');
+      if (btnB) btnB.classList.toggle('active', mode === 'bottom');
+
+      try {
+        localStorage.setItem('wuyi_split_mode', mode);
+      } catch (e) {}
+
+      if (mode === 'bottom') {
+        // 靠下堆疊模式時自動展開試算器，方便橫向雙欄同步操作
+        const qc = document.getElementById('quoteCollapse');
+        if (qc && !qc.classList.contains('open')) {
+          qc.classList.add('open');
+        }
+      }
+
+      showToast(mode === 'right' ? '已切換為：📐 靠右顯示 (適合 Chrome 左右分割)' : '已切換為：📐 靠下顯示 (適合 Chrome 上下堆疊)');
+    }
+
+    // ================= 自訂回覆資料備份與還原 =================
+    function exportBackupJson() {
+      try {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData, null, 2));
+        const a = document.createElement('a');
+        a.href = dataStr;
+        a.download = `wuyi_custom_replies_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast('✅ 備份檔下載完成！您已編輯的所有資料已妥善儲存');
+      } catch (err) {
+        alert('匯出失敗：' + err.message);
+      }
+    }
+
+    function triggerImportJson() {
+      const input = document.getElementById('backupFileInput');
+      if (input) input.click();
+    }
+
+    function handleImportFile(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && typeof imported === 'object') {
+            pagesData = imported;
+            savePagesDataToStorage();
+            renderMainPageNav();
+            renderReplies();
+            renderModalPageSelector();
+            renderModalTenSlots();
+            renderModalList();
+            showToast('🎉 成功還原備份資料！所有回覆已載入');
+          } else {
+            showToast('檔案格式不符，請確認是有效的備份檔', '⚠️');
+          }
+        } catch (err) {
+          showToast('讀取檔案失敗：' + err.message, '⚠️');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // 初始化渲染與讀取模式 (預設為適合上下堆疊分割的靠下模式)
+    const savedMode = localStorage.getItem('wuyi_split_mode') || 'bottom';
+    setSplitMode(savedMode);
+    renderMainPageNav();
+    renderReplies();
+  </script>
+</body>
+</html>

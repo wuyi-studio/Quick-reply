@@ -1198,6 +1198,76 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    /* ================= Chrome 側邊欄版下載＆安裝說明 ================= */
+    .btn-ext-download {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #7dd3fc;
+      border-radius: 6px;
+      padding: 4px 10px;
+      height: 27px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      white-space: nowrap;
+      transition: all 0.12s;
+    }
+    .btn-ext-download:hover { background: #bae6fd; color: #075985; }
+    body.mode-bottom .btn-ext-download { height: 24px; padding: 0 7px; font-size: 10.5px; }
+
+    .install-hero {
+      display: flex; align-items: center; gap: 12px;
+      background: linear-gradient(135deg, #e8f9ee 0%, #e0f2fe 100%);
+      border: 1px solid #bbf7d0; border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 12px;
+    }
+    .install-hero-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      background: var(--primary); color: #fff; font-size: 26px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 6px rgba(6, 199, 85, 0.3);
+    }
+    .install-hero-text { font-size: 12.5px; color: #334155; line-height: 1.55; }
+    .install-hero-text b { color: #0f172a; font-size: 13.5px; }
+    .btn-zip-download {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; height: 42px; margin-bottom: 12px;
+      background: var(--primary); color: #fff; text-decoration: none;
+      border-radius: 8px; font-size: 14px; font-weight: 800;
+      box-shadow: 0 2px 6px rgba(6, 199, 85, 0.3);
+    }
+    .btn-zip-download:hover { background: var(--primary-dark); }
+    .install-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; counter-reset: step; }
+    .install-steps li {
+      counter-increment: step; position: relative;
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 10px 8px 40px; font-size: 12.5px; color: #334155; line-height: 1.55;
+    }
+    .install-steps li::before {
+      content: counter(step); position: absolute; left: 10px; top: 8px;
+      width: 21px; height: 21px; border-radius: 50%;
+      background: var(--primary); color: #fff; font-size: 11.5px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .install-steps b { color: #0f172a; }
+    .install-code-row { display: flex; gap: 6px; align-items: center; margin-top: 5px; }
+    .install-code {
+      font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; font-weight: 700;
+      background: #fff; border: 1px solid #cbd5e1; border-radius: 5px; padding: 3px 8px; color: #0f172a;
+      user-select: all;
+    }
+    .btn-mini-copy {
+      height: 26px; padding: 0 9px; border: none; border-radius: 5px;
+      background: var(--primary); color: #fff; font-size: 11.5px; font-weight: 700; cursor: pointer;
+    }
+    .install-note {
+      margin-top: 10px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;
+      padding: 8px 10px; font-size: 11.5px; color: #9a3412; line-height: 1.6;
+    }
   </style>
 </head>
 <body class="mode-bottom">
@@ -1217,6 +1287,10 @@
       </div>
     </div>
     <div class="header-actions">
+      <!-- Chrome 側邊欄版下載與安裝說明 -->
+      <button type="button" class="btn-ext-download" onclick="openInstallModal()" title="下載 Chrome 右側邊欄版本與安裝步驟">
+        <span>⬇️ 下載 Chrome 側邊欄版</span>
+      </button>
       <!-- 管理/匯入按鈕 -->
       <button type="button" class="btn-manage-open" onclick="openManageModal()">
         <span>⚙️ 管理／匯入</span>
@@ -1540,6 +1614,49 @@
   <div class="toast" id="toast">
     <span id="toastIcon">✅</span>
     <span id="toastMsg">已複製！請直接貼到官方 LINE 對話框</span>
+  </div>
+
+  <!-- Chrome 側邊欄版：下載與安裝說明 Modal -->
+  <div class="modal-backdrop" id="installModal" onclick="closeInstallModalOnBg(event)">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-top">
+        <span class="modal-title">⬇️ 安裝 Chrome 側邊欄版</span>
+        <button type="button" class="btn-modal-close" onclick="closeInstallModal()">✕</button>
+      </div>
+
+      <div class="install-hero">
+        <div class="install-hero-icon">梧</div>
+        <div class="install-hero-text">
+          <b>梧藝客服小幫手（Chrome 擴充功能）</b><br>
+          放在 Chrome 右側邊欄，按「📥 貼上」就把回覆填進 LINE 官方帳號網頁版的客人對話框，<b>不會自動傳送</b>，確認後自己按傳送。
+        </div>
+      </div>
+
+      <a class="btn-zip-download" href="wuyi-quick-reply-extension.zip" download="wuyi-quick-reply-extension.zip">
+        ⬇️ 下載安裝檔（ZIP）
+      </a>
+
+      <ol class="install-steps">
+        <li><b>解壓縮</b>：打開「下載項目」，點兩下 <b>wuyi-quick-reply-extension.zip</b>，會出現一個 <b>wuyi-quick-reply-extension</b> 資料夾。建議移到「文件」等不會被刪掉的地方。</li>
+        <li><b>打開擴充功能頁</b>：這個網址不能直接點，請按「複製」後貼到 Chrome 網址列，再按 Enter。
+          <div class="install-code-row">
+            <span class="install-code">chrome://extensions</span>
+            <button type="button" class="btn-mini-copy" id="btnCopyExtUrl" onclick="copyExtensionsUrl()">📋 複製</button>
+          </div>
+        </li>
+        <li>打開右上角的 <b>「開發人員模式」</b> 開關。</li>
+        <li>按左上角的 <b>「載入未封裝項目」</b>。</li>
+        <li><b>選資料夾</b>：選第 1 步解壓縮出來的 <b>wuyi-quick-reply-extension</b> 資料夾（打開後看得到 manifest.json 的那一層），按「選取」。</li>
+        <li><b>釘選</b>：按 Chrome 右上角的拼圖圖示 🧩，把「梧藝客服小幫手」旁的圖釘點亮。</li>
+        <li><b>開始使用</b>：打開 <b>chat.line.biz</b>（LINE 官方帳號網頁版聊天）並點開客人對話，再點工具列的綠色「梧」圖示，右邊就會出現小幫手。</li>
+      </ol>
+
+      <div class="install-note">
+        ⚠️ 直接把 ZIP 拖進 Chrome <b>不會</b>安裝，一定要先解壓縮，再用「載入未封裝項目」選資料夾。<br>
+        🔄 之後有新版：下載新的 ZIP 解壓縮、覆蓋舊資料夾，再到 chrome://extensions 按擴充功能上的重新整理 ↻。<br>
+        💾 側邊欄版的回覆資料和這個網頁分開存；要搬資料，先在這裡「⚙️ 管理／匯入 → 💾 備份下載」，再到側邊欄「📂 還原匯入」。
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2847,6 +2964,27 @@
       };
       reader.readAsText(file);
       event.target.value = '';
+    }
+
+    // ================= Chrome 側邊欄版：下載與安裝說明 =================
+    function openInstallModal() {
+      document.getElementById('installModal').classList.add('show');
+    }
+    function closeInstallModal() {
+      document.getElementById('installModal').classList.remove('show');
+    }
+    function closeInstallModalOnBg(e) {
+      if (e.target.id === 'installModal') closeInstallModal();
+    }
+    function copyExtensionsUrl() {
+      performSafeCopy('chrome://extensions', () => {
+        const btn = document.getElementById('btnCopyExtUrl');
+        if (btn) {
+          btn.textContent = '✓ 已複製';
+          setTimeout(() => { btn.textContent = '📋 複製'; }, 1500);
+        }
+        showToast('已複製！請貼到 Chrome 網址列後按 Enter');
+      });
     }
 
     // 初始化渲染與讀取模式 (預設為適合上下堆疊分割的靠下模式)

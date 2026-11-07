@@ -61,3 +61,56 @@ test('flat list keeps the old ten-per-page indexes', () => {
   assert.equal(pages['1'].length, 20);
   assert.equal(pages['2'][0], null);
 });
+
+function filled(prefix, count) {
+  return Array.from({ length: count }, (_, i) => ({ id: prefix + i, category: '💐', title: '合成' + i, text: '內文' + i }));
+}
+
+test('relative moves stay inside the visible window', () => {
+  const page = M.padPage(filled('v', 10));
+  page[12] = { id: 'hidden', category: '🎂', title: '合成藏', text: '內文藏' };
+  const down = M.moveRelative(page, 9, 1, 10);
+  assert.equal(down.changed, false);
+  assert.equal(down.toast, '已經在最下方了！');
+  assert.deepEqual(down.page, page);
+  const hiddenMove = M.moveRelative(page, 12, -1, 10);
+  assert.equal(hiddenMove.disabled, true);
+  assert.deepEqual(hiddenMove.page, page);
+  const extreme = M.moveExtreme(page, 3, 'bottom', 10);
+  assert.equal(extreme.page[9].id, 'v3');
+  assert.equal(extreme.page[12].id, 'hidden');
+  assert.equal(extreme.index, 9);
+});
+
+test('swap with a hidden slot keeps both items', () => {
+  const pages = M.pagesFromFlatList([]);
+  pages['1'][0] = { id: 'a', category: '💐', title: '合成甲', text: '甲' };
+  pages['1'][12] = { id: 'b', category: '🎂', title: '合成乙', text: '乙' };
+  const swapped = M.swapSlots(pages, 1, 0, 1, 12, 10);
+  assert.equal(swapped.ok, true);
+  assert.equal(swapped.pages['1'][12].id, 'a');
+  assert.equal(swapped.pages['1'][0].id, 'b');
+  assert.equal(swapped.toasts[0], '已移到第 1 頁第 13 格。此格目前未顯示，改選較多的每頁格數即可看到。');
+});
+
+test('cross-page insert into a full page changes nothing', () => {
+  const pages = M.pagesFromFlatList([]);
+  pages['1'][0] = { id: 'src', category: '💐', title: '合成源', text: '源' };
+  pages['2'] = filled('d', 20);
+  const before = structuredClone(pages);
+  const result = M.insertSlot(pages, 1, 0, 2, 0, 10);
+  assert.equal(result.ok, false);
+  assert.deepEqual(result.pages, before);
+  assert.equal(result.toasts[0], '目標頁放不下這次插入，資料沒有變更。可以改用互換。');
+});
+
+test('cross-page insert keeps every non-null item when the tail is null', () => {
+  const pages = M.pagesFromFlatList([]);
+  pages['1'][0] = { id: 'src', category: '💐', title: '合成源', text: '源' };
+  pages['2'][0] = { id: 'dst', category: '🎂', title: '合成的', text: '的' };
+  const result = M.insertSlot(pages, 1, 0, 2, 0, 10);
+  assert.equal(result.ok, true);
+  const ids = result.pages['1'].concat(result.pages['2']).filter(Boolean).map(entry => entry.id).sort();
+  assert.deepEqual(ids, ['dst', 'src']);
+  assert.equal(result.pages['2'].length, 20);
+});

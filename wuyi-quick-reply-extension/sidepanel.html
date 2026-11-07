@@ -138,7 +138,7 @@
       <!-- 分頁切換 -->
       <div id="categoryOrderEditor"></div>
       <div class="modal-tab-bar">
-        <button type="button" class="modal-tab-btn active" id="tabBtnBatch" data-on-click="switchModalTab('batch')">📥 10 筆匯入設定</button>
+        <button type="button" class="modal-tab-btn active" id="tabBtnBatch" data-on-click="switchModalTab('batch')">📥 20 格匯入設定</button>
         <button type="button" class="modal-tab-btn" id="tabBtnSingle" data-on-click="switchModalTab('single')">➕ 新增單筆</button>
         <button type="button" class="modal-tab-btn" id="tabBtnList" data-on-click="switchModalTab('list')">📝 現有回覆清單</button>
       </div>
@@ -153,7 +153,7 @@
         </div>
 
         <div style="font-size:11.5px; color:#64748b; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
-          <span>正在編輯：<b id="editingPageLabel" style="color:var(--primary-dark);">第 1 頁（欄位 #1 ~ #10）</b></span>
+          <span>正在編輯：<b id="editingPageLabel" style="color:var(--primary-dark);">第 1 頁（欄位 #1 ~ #20）</b></span>
           <button type="button" class="btn-reset-data" style="padding:1px 6px; font-size:10.5px;" data-on-click="clearCurrentModalPageSlots()">清空本頁 10 格</button>
         </div>
         
@@ -168,7 +168,7 @@
             <input type="file" id="backupFileInput" accept=".json" style="display:none;" data-on-change="handleImportFile(event)">
             <button type="button" class="btn-reset-data" data-on-click="resetToDefaultReplies()">🔄 恢復官方</button>
           </div>
-          <button type="button" class="btn-primary-modal" data-on-click="saveCurrentModalPageSlots()">💾 儲存本頁 10 筆回覆</button>
+          <button type="button" class="btn-primary-modal" data-on-click="saveCurrentModalPageSlots()">💾 儲存本頁 20 格</button>
         </div>
       </div>
 

@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { writeReviewPages } from './write-review-html.mjs';
 
 test('review html is rendered from the real side panel functions', () => {
+  writeReviewPages();
   const list = fs.readFileSync('/tmp/wuyi-review/list.html', 'utf8');
   const wide = fs.readFileSync('/tmp/wuyi-review/wide.html', 'utf8');
   const quote = fs.readFileSync('/tmp/wuyi-review/quote.html', 'utf8');

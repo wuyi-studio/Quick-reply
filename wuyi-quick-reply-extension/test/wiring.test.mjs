@@ -199,3 +199,72 @@ test('one boot keeps move, hidden slots, category order, and blocked quote toget
   ctx.pasteQuoteText();
   assert.equal(ctx.__pasteLog.length, 0);
 });
+
+test('moving onto a raw page does not delete the reply', () => {
+  const ctx = boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({
+        '1': [{ id: 't1', category: '💐', title: '合成甲', text: '合成內文甲', catName: '保留' }],
+        '2': { kept: true }
+      })
+    }
+  });
+  ctx.openMoveFromCard({ cancelBubble: false }, 1, 0);
+  ctx.document.getElementById('targetPageSelect').value = '2';
+  ctx.document.getElementById('targetSlotSelect').value = '0';
+  ctx.executeMove('swap');
+  const stored = JSON.parse(ctx.localStorage.getItem('wuyi_100_pages_data'));
+  assert.equal(stored['1'][0].id, 't1');
+  assert.equal(stored['1'][0].catName, '保留');
+  assert.deepEqual(stored['2'], { kept: true });
+});
+
+test('backup payload keeps the raw page and a bad import changes nothing', () => {
+  const ctx = boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({
+        '1': [{ id: 't1', category: '💐', title: '合成甲', text: '合成內文甲' }],
+        '2': { kept: true }
+      })
+    }
+  });
+  const payload = ctx.backupPayload();
+  assert.equal(JSON.stringify(payload.rawPages['2']), JSON.stringify({ kept: true }));
+  assert.equal(payload.pages['2'], undefined);
+  assert.equal(payload.formatVersion, 2);
+  const before = ctx.localStorage.getItem('wuyi_100_pages_data');
+  const result = ctx.applyImportedBackup({ formatVersion: 3 });
+  assert.equal(result.ok, false);
+  assert.equal(ctx.localStorage.getItem('wuyi_100_pages_data'), before);
+});
+
+test('edit keeps an unknown category and extra fields', () => {
+  const ctx = boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({
+        '1': [{ id: 't1', category: '合成類', title: '合成甲', text: '合成內文甲', catName: '保留' }]
+      })
+    }
+  });
+  ctx.openEditModal(1, 0);
+  assert.match(ctx.document.getElementById('editReplyCat').innerHTML, /合成類/);
+  ctx.document.getElementById('editReplyTitle').value = '合成甲改';
+  ctx.document.getElementById('editReplyText').value = '合成內文甲';
+  ctx.document.getElementById('editReplyCat').value = '合成類';
+  ctx.saveEditReply();
+  const stored = JSON.parse(ctx.localStorage.getItem('wuyi_100_pages_data'));
+  assert.equal(stored['1'][0].title, '合成甲改');
+  assert.equal(stored['1'][0].category, '合成類');
+  assert.equal(stored['1'][0].catName, '保留');
+  assert.equal(stored['1'][0].id, 't1');
+});
+
+test('pressing a card button clears draggable before a drag can start', () => {
+  const ctx = boot({ storage: { wuyi_defaults_version: '1.0.2-003851d4', wuyi_100_pages_data: '{}' } });
+  const card = { draggable: true, getAttribute() { return null; } };
+  ctx.blockCardDrag({ target: { closest(sel) { return sel === '.reply-card' ? card : null; } } });
+  assert.equal(card.draggable, false);
+});

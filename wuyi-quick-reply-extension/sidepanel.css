@@ -714,12 +714,6 @@
       box-shadow: 0 1px 4px rgba(6, 199, 85, 0.08);
     }
 
-    .reply-card.pressing {
-      background: #f0fdf4 !important;
-      border-color: var(--primary) !important;
-      transform: scale(0.985);
-    }
-
     .reply-card.dragging {
       opacity: 0.45;
       border: 1.5px dashed var(--primary);

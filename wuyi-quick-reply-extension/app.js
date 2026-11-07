@@ -534,19 +534,20 @@
         const hiddenNote = rawNote || WuyiModel.hiddenNotice(currentSlots, visibleSlots);
         let cardsHtml = hiddenNote ? `<div class="hidden-notice">${hiddenNote}</div>` : '';
 
+        const pageIsRaw = Object.prototype.hasOwnProperty.call(rawPages, String(currentPage));
         for (let s = 0; s < visibleSlots; s++) {
           const item = currentSlots[s];
           if (item) {
             cardsHtml += buildReplyCardHtml(item, currentPage, s);
           } else {
-            // 空欄位卡片 (點擊可立即編輯填入，亦可作為拖放目標)
+            const dropAttrs = pageIsRaw ? '' : `
+                   data-on-dragover="handleDragOver(event)"
+                   data-on-dragleave="handleDragLeave(event)"
+                   data-on-drop="handleDrop(event, ${currentPage}, ${s})"`;
             cardsHtml += `
               <div class="empty-slot-card" 
                    id="emptyCard_${currentPage}_${s}" 
-                   data-on-click="openEditModal(${currentPage}, ${s})"
-                   data-on-dragover="handleDragOver(event)"
-                   data-on-dragleave="handleDragLeave(event)"
-                   data-on-drop="handleDrop(event, ${currentPage}, ${s})">
+                   data-on-click="openEditModal(${currentPage}, ${s})"${dropAttrs}>
                 <span style="font-size:12px; color:#94a3b8; font-weight:600;">＋ 空欄位（點擊填寫，可拖曳換位）</span>
                 <button type="button" class="btn-card-edit" style="pointer-events:none; width:auto; padding:0 6px; font-size:10.5px;">
                   <span>✏️ 填寫</span>
@@ -586,11 +587,11 @@
             ${hiddenMark}
           </div>
           <div class="reply-card-right">
-            <button type="button" class="btn-card-move" data-on-click="openMoveFromCard(event, ${pageNum}, ${slotIdx})" aria-label="移動欄位與更換頁數"><span>移動</span></button>
-            <button type="button" class="btn-card-edit" data-on-click="openEditModal(${pageNum}, ${slotIdx})" title="編輯文字內容">
+            <button type="button" class="btn-card-move" draggable="false" data-on-mousedown="blockCardDrag(event)" data-on-mouseup="restoreCardDrag(event)" data-on-click="openMoveFromCard(event, ${pageNum}, ${slotIdx})" aria-label="移動欄位與更換頁數"><span>移動</span></button>
+            <button type="button" class="btn-card-edit" draggable="false" data-on-mousedown="blockCardDrag(event)" data-on-mouseup="restoreCardDrag(event)" data-on-click="openEditModal(${pageNum}, ${slotIdx})" title="編輯文字內容">
               <span>✏️</span>
             </button>
-            <button type="button" class="btn-main-copy" id="btnCopy_${item.id || (pageNum + '_' + slotIdx)}" data-on-click="copyTextDirect(this, \`${encodeURIComponent(item.text)}\`)" title="複製" aria-label="複製">
+            <button type="button" class="btn-main-copy" draggable="false" data-on-mousedown="blockCardDrag(event)" data-on-mouseup="restoreCardDrag(event)" id="btnCopy_${item.id || (pageNum + '_' + slotIdx)}" data-on-click="copyTextDirect(this, \`${encodeURIComponent(item.text)}\`)" title="複製" aria-label="複製">
               <span>📋</span>
             </button>
           </div>
@@ -738,10 +739,10 @@
       editingPage = pageNum;
       editingSlot = slotIdx;
 
-      const item = pagesData[pageNum][slotIdx] || { title: '', category: 'payment', text: '' };
+      const item = (pagesData[pageNum] && pagesData[pageNum][slotIdx]) || { title: '', category: '⭐️', text: '' };
       document.getElementById('editReplyId').value = `${pageNum}_${slotIdx}`;
       document.getElementById('editReplyTitle').value = item.title || '';
-      document.getElementById('editReplyCat').value = item.category || 'payment';
+      renderCategorySelect(document.getElementById('editReplyCat'), item.category || '⭐️');
       document.getElementById('editReplyText').value = item.text || '';
 
       const modalTitle = document.querySelector('#editModal .modal-title');
@@ -760,34 +761,27 @@
       if (e.target.id === 'editModal') closeEditModal();
     }
 
+    function pageIsRaw(pageNumber) {
+      return Object.prototype.hasOwnProperty.call(rawPages, String(pageNumber));
+    }
+
     function saveEditReply() {
+      if (pageIsRaw(editingPage)) {
+        showToast(WuyiModel.rawPageNotice(editingPage), '⚠️');
+        return;
+      }
       const title = document.getElementById('editReplyTitle').value.trim();
       const cat = document.getElementById('editReplyCat').value;
       const text = document.getElementById('editReplyText').value.trim();
-
-      if (!title && !text) {
-        // 清空該欄位
-        pagesData[editingPage][editingSlot] = null;
-        savePagesDataToStorage();
-        renderMainPageNav();
-        renderReplies();
-        closeEditModal();
-        showToast('已清空該欄位');
-        return;
-      }
-
-      pagesData[editingPage][editingSlot] = {
-        id: `slot_${editingPage}_${editingSlot}`,
-        category: cat || '⭐️',
-        title: title || `回覆 P${editingPage}-${editingSlot + 1}`,
-        text: text
-      };
-
+      const previous = pagesData[editingPage][editingSlot];
+      pagesData[editingPage][editingSlot] = WuyiModel.applyBatchSlot(previous, {
+        title, text, category: cat || '⭐️', page: editingPage, index: editingSlot
+      });
       savePagesDataToStorage();
       renderMainPageNav();
       renderReplies();
       closeEditModal();
-      showToast('✅ 已成功儲存修改！');
+      showToast(pagesData[editingPage][editingSlot] ? '✅ 已成功儲存修改！' : '已清空該欄位');
     }
 
     // ================= 常用回覆管理 Modal (10 頁 x 10 欄位) =================
@@ -834,7 +828,7 @@
       container.innerHTML = html;
 
       const lbl = document.getElementById('editingPageLabel');
-      if (lbl) lbl.textContent = `第 ${modalPage} 頁（欄位 #1 ~ #10）`;
+      if (lbl) lbl.textContent = `第 ${modalPage} 頁（欄位 #1 ~ #20）`;
     }
 
     function changeModalPage(p) {
@@ -1309,6 +1303,16 @@
       return tags;
     }
 
+    function blockCardDrag(event) {
+      const card = event.target && event.target.closest && event.target.closest('.reply-card');
+      if (card) card.draggable = false;
+    }
+
+    function restoreCardDrag(event) {
+      const card = event.target && event.target.closest && event.target.closest('.reply-card');
+      if (card && card.getAttribute('data-slot-hidden') !== '1') card.draggable = true;
+    }
+
     function openMoveFromCard(event, page, slot) {
       if (event) event.cancelBubble = true;
       openMoveModal(page, slot);
@@ -1421,6 +1425,10 @@
     function executeMove(action) {
       const targetPage = parseInt(document.getElementById('targetPageSelect').value, 10);
       const targetSlot = parseInt(document.getElementById('targetSlotSelect').value, 10);
+      if (pageIsRaw(targetPage) || pageIsRaw(movingPage)) {
+        showToast('這一頁的儲存格式無法直接移動，資料沒有變更。', '⚠️');
+        return;
+      }
       if (targetPage === movingPage && targetSlot === movingSlot) {
         showToast('目標位置與目前位置相同！', '⚠️');
         return;
@@ -1474,6 +1482,11 @@
       if (!draggedCoord) return;
       const srcP = draggedCoord.page;
       const srcS = draggedCoord.slot;
+      if (pageIsRaw(targetPage) || pageIsRaw(srcP)) {
+        showToast('這一頁的儲存格式無法直接移動，資料沒有變更。', '⚠️');
+        draggedCoord = null;
+        return;
+      }
       if (srcP === targetPage && srcS === targetSlot) return;
 
       const temp = pagesData[targetPage][targetSlot];
@@ -1521,9 +1534,36 @@
     }
 
     // ================= 自訂回覆資料備份與還原 =================
+    function backupPayload() {
+      return WuyiModel.exportBackup({ pages: pagesData, rawPages, slotsPerPage: visibleSlots, categoryOrder });
+    }
+
+    function applyImportedBackup(data) {
+      const result = WuyiModel.importBackup(data, { pages: pagesData, rawPages, slotsPerPage: visibleSlots, categoryOrder });
+      if (!result.ok) {
+        showToast(result.error, '⚠️');
+        return result;
+      }
+      pagesData = result.pages;
+      rawPages = result.rawPages;
+      visibleSlots = result.slotsPerPage;
+      categoryOrder = result.categoryOrder;
+      savePagesDataToStorage();
+      localStorage.setItem('wuyi_slots_per_page', String(visibleSlots));
+      localStorage.setItem('wuyi_category_order', JSON.stringify(categoryOrder));
+      renderSlotsPerPageControl();
+      renderCategoryPills();
+      renderMainPageNav();
+      renderReplies();
+      renderModalPageSelector();
+      renderModalTenSlots();
+      renderModalList();
+      return result;
+    }
+
     function exportBackupJson() {
       try {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(pagesData, null, 2));
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload(), null, 2));
         const a = document.createElement('a');
         a.href = dataStr;
         a.download = `wuyi_custom_replies_backup_${new Date().toISOString().slice(0, 10)}.json`;
@@ -1549,18 +1589,8 @@
       reader.onload = (e) => {
         try {
           const imported = JSON.parse(e.target.result);
-          if (imported && typeof imported === 'object') {
-            pagesData = imported;
-            savePagesDataToStorage();
-            renderMainPageNav();
-            renderReplies();
-            renderModalPageSelector();
-            renderModalTenSlots();
-            renderModalList();
-            showToast('🎉 成功還原備份資料！所有回覆已載入');
-          } else {
-            showToast('檔案格式不符，請確認是有效的備份檔', '⚠️');
-          }
+          const result = applyImportedBackup(imported);
+          if (result.ok) showToast('🎉 成功還原備份資料！所有回覆已載入');
         } catch (err) {
           showToast('讀取檔案失敗：' + err.message, '⚠️');
         }
@@ -1588,7 +1618,7 @@
       if (!host) return;
       const all = `<button type="button" class="cat-pill" data-on-click="onCategoryPillClick('all', this)">🌟</button>`;
       const rest = categoryOrder.map((cat, index) =>
-        `<button type="button" class="cat-pill" draggable="true" data-category-index="${index}" data-on-click="onCategoryPillClick('${cat}', this)" data-on-keydown="onCategoryKeyDown(event)" data-on-dragstart="startCategoryDrag(event, ${index})" data-on-drop="dropCategory(event, ${index})" data-on-dragover="allowCategoryDrag(event)">${cat}</button>`
+        `<button type="button" class="cat-pill" draggable="true" data-category-index="${index}" data-on-click="onCategoryPillClick('${cat}', this)" data-on-keydown="onCategoryKeyDown(event)" data-on-dragstart="startCategoryDrag(event, ${index})" data-on-dragend="endCategoryDrag()" data-on-drop="dropCategory(event, ${index})" data-on-dragover="allowCategoryDrag(event)">${cat}</button>`
       ).join('');
       host.innerHTML = all + rest;
       renderCategorySelect(document.getElementById('newReplyCat'), document.getElementById('newReplyCat')?.value || categoryOrder[0]);
@@ -1601,14 +1631,22 @@
       }
     }
 
+    function commitCategoryOrder(next) {
+      if (next.join('\u0000') === categoryOrder.join('\u0000')) return;
+      categoryOrder = next;
+      persistCategoryOrder();
+      document.querySelectorAll('[id^="slotCat_"]').forEach(select => {
+        renderCategorySelect(select, select.value);
+      });
+    }
+
     function onCategoryKeyDown(event) {
       if (!event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
       const host = event.target && event.target.closest ? event.target.closest('[data-category-index]') : null;
       if (!host) return;
       event.preventDefault();
       const index = Number(host.getAttribute('data-category-index'));
-      categoryOrder = WuyiModel.swapCategoryNeighbor(categoryOrder, index, event.key === 'ArrowLeft' ? -1 : 1);
-      persistCategoryOrder();
+      commitCategoryOrder(WuyiModel.swapCategoryNeighbor(categoryOrder, index, event.key === 'ArrowLeft' ? -1 : 1));
     }
 
     function startCategoryDrag(event, index) {
@@ -1625,13 +1663,15 @@
       const from = categoryDrag.index;
       categoryDrag = null;
       if (distance < 8 || from === to) return;
-      categoryOrder = WuyiModel.moveCategory(categoryOrder, from, to);
-      persistCategoryOrder();
+      commitCategoryOrder(WuyiModel.moveCategory(categoryOrder, from, to));
+    }
+
+    function endCategoryDrag() {
+      categoryDrag = null;
     }
 
     function moveCategoryFromUi(index, direction) {
-      categoryOrder = WuyiModel.swapCategoryNeighbor(categoryOrder, index, direction);
-      persistCategoryOrder();
+      commitCategoryOrder(WuyiModel.swapCategoryNeighbor(categoryOrder, index, direction));
     }
 
     function onCategoryPillClick(cat, el) {

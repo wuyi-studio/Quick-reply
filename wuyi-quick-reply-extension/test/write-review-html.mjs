@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { boot } from './harness.mjs';
 
+export function writeReviewPages() {
+
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const css = fs.readFileSync(path.join(root, 'sidepanel.css'), 'utf8');
 const outDir = '/tmp/wuyi-review';
@@ -41,3 +43,6 @@ const end = sidepanel.indexOf('id="customAddonError"');
 const quoteFragment = sidepanel.slice(start, end) + '<div id="customAddonError"></div>';
 fs.writeFileSync(path.join(outDir, 'quote.html'), page('報價', quoteFragment));
 fs.writeFileSync(path.join(outDir, 'window.html'), page('小視窗', `<div style="width:280px">${shell(ctx)}</div>`));
+}
+
+if (process.argv[1] && process.argv[1].endsWith('write-review-html.mjs')) writeReviewPages();

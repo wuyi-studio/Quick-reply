@@ -114,3 +114,101 @@ test('cross-page insert keeps every non-null item when the tail is null', () => 
   assert.deepEqual(ids, ['dst', 'src']);
   assert.equal(result.pages['2'].length, 20);
 });
+
+function currentState() {
+  const pages = M.pagesFromFlatList([]);
+  pages['1'][0] = { id: 't1', category: '💐', title: '合成甲', text: '合成內文甲', catName: '保留' };
+  pages['1'][20] = { id: 'tail', category: '🎂', title: '合成尾', text: '尾' };
+  return {
+    pages,
+    rawPages: {},
+    slotsPerPage: 15,
+    categoryOrder: M.DEFAULT_CATEGORY_ORDER.slice()
+  };
+}
+
+test('legacy ten-slot backup keeps the item index and current settings', () => {
+  const current = currentState();
+  const legacy = {};
+  for (let p = 1; p <= 10; p += 1) legacy[String(p)] = Array(10).fill(null);
+  legacy['4'][2] = { id: 'old', category: '🌹', title: '合成舊', text: '舊', tagClass: 'tag-blue' };
+  const imported = M.importBackup(legacy, current);
+  assert.equal(imported.ok, true);
+  assert.equal(imported.pages['4'][2].tagClass, 'tag-blue');
+  assert.equal(imported.pages['4'].length, 20);
+  assert.equal(imported.slotsPerPage, 15);
+  assert.deepEqual(imported.categoryOrder, current.categoryOrder);
+});
+
+test('version 2 round trip keeps hidden slots, tail, order, and catName', () => {
+  const current = currentState();
+  const raw = M.exportBackup(current);
+  const imported = M.importBackup(JSON.parse(JSON.stringify(raw)), {
+    pages: M.pagesFromFlatList([]),
+    rawPages: {},
+    slotsPerPage: 10,
+    categoryOrder: M.DEFAULT_CATEGORY_ORDER.slice().reverse()
+  });
+  assert.equal(imported.ok, true);
+  assert.equal(imported.pages['1'][0].catName, '保留');
+  assert.equal(imported.pages['1'][20].id, 'tail');
+  assert.equal(imported.slotsPerPage, 15);
+  assert.deepEqual(imported.categoryOrder, M.DEFAULT_CATEGORY_ORDER);
+});
+
+test('rawPages round trip stays raw until batch save', () => {
+  const file = {
+    format: 'wuyi-quick-reply-backup',
+    formatVersion: 2,
+    slotsPerPage: 10,
+    categoryOrder: M.DEFAULT_CATEGORY_ORDER,
+    pages: { '1': [] },
+    rawPages: { '2': { kept: true } }
+  };
+  for (let p = 3; p <= 10; p += 1) file.pages[String(p)] = [];
+  const imported = M.importBackup(file, currentState());
+  assert.deepEqual(imported.rawPages['2'], { kept: true });
+  const stored = M.serializePagesForStorage(imported.pages, imported.rawPages);
+  assert.deepEqual(stored['2'], { kept: true });
+  const forms = Array.from({ length: 20 }, () => ({ title: '', category: '💐', text: '' }));
+  forms[0] = { title: '合成新', category: '💐', text: '新內文' };
+  const committed = M.commitBatchPage(imported.pages, imported.rawPages, 2, forms);
+  assert.equal(committed.rawPages['2'], undefined);
+  assert.equal(committed.pages['2'][0].title, '合成新');
+  assert.equal(committed.pages['2'][0].id, 'slot_2_0');
+});
+
+test('bad backups do not change current state', () => {
+  const current = currentState();
+  const files = [
+    { '1': [] },
+    { formatVersion: 3 },
+    {
+      format: 'wuyi-quick-reply-backup',
+      formatVersion: 2,
+      slotsPerPage: 10,
+      categoryOrder: M.DEFAULT_CATEGORY_ORDER.slice(0, 12).concat([M.DEFAULT_CATEGORY_ORDER[0]]),
+      pages: { '1': [], '2': [], '3': [], '4': [], '5': [], '6': [], '7': [], '8': [], '9': [], '10': [] }
+    }
+  ];
+  for (const file of files) {
+    const imported = M.importBackup(file, current);
+    assert.equal(imported.ok, false);
+    assert.equal(imported.error, '檔案無法匯入，目前資料沒有變更。');
+    assert.deepEqual(imported.pages, current.pages);
+    assert.equal(imported.slotsPerPage, 15);
+  }
+});
+
+test('batch save keeps unknown fields and the tail past index 19', () => {
+  const page = M.padPage([{ id: 'keep', category: '💐', title: '舊', text: '舊文', catName: '保留' }]);
+  page.push({ id: 'tail', category: '🎂', title: '尾', text: '尾文' });
+  const forms = Array.from({ length: 20 }, () => ({ title: '', category: '💐', text: '' }));
+  forms[0] = { title: '新題', category: '🌹', text: '新文' };
+  const next = M.applyBatchPage(page, forms);
+  assert.equal(next[0].id, 'keep');
+  assert.equal(next[0].catName, '保留');
+  assert.equal(next[0].title, '新題');
+  assert.equal(next[1], null);
+  assert.equal(next[20].id, 'tail');
+});

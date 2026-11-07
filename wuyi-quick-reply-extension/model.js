@@ -145,6 +145,148 @@
     return { ok: true, pages: next, toasts: [toast] };
   }
 
+  const DEFAULT_CATEGORY_ORDER = ['💐', '🌹', '🎂', '🍔', '🔥', '🚗', '⭐️', '‼️', '❓', '😊', '👍', '💙', '❤️'];
+
+  function isCategoryPermutation(order) {
+    if (!Array.isArray(order) || order.length !== DEFAULT_CATEGORY_ORDER.length) return false;
+    const counts = new Map();
+    DEFAULT_CATEGORY_ORDER.forEach(entry => counts.set(entry, (counts.get(entry) || 0) + 1));
+    for (const entry of order) {
+      if (!counts.get(entry)) return false;
+      counts.set(entry, counts.get(entry) - 1);
+    }
+    return true;
+  }
+
+  function cloneItem(entry) {
+    return entry && typeof entry === 'object' ? { ...entry } : null;
+  }
+
+  function normalizeItemArray(value) {
+    const items = [];
+    for (const entry of value) {
+      if (entry == null) { items.push(null); continue; }
+      if (typeof entry !== 'object' || Array.isArray(entry)) return { ok: false };
+      if (typeof entry.title !== 'string' || typeof entry.category !== 'string' || typeof entry.text !== 'string') return { ok: false };
+      items.push({ ...entry });
+    }
+    return { ok: true, items };
+  }
+
+  function exportBackup(state) {
+    const pages = {};
+    const rawPages = {};
+    for (let p = 1; p <= PAGE_COUNT; p += 1) {
+      const key = String(p);
+      if (state.rawPages && Object.prototype.hasOwnProperty.call(state.rawPages, key)) rawPages[key] = state.rawPages[key];
+      else pages[key] = state.pages[key].slice();
+    }
+    const out = {
+      format: 'wuyi-quick-reply-backup',
+      formatVersion: 2,
+      slotsPerPage: state.slotsPerPage,
+      categoryOrder: state.categoryOrder.slice(),
+      pages
+    };
+    if (Object.keys(rawPages).length) out.rawPages = rawPages;
+    return out;
+  }
+
+  function rejectImport(current) {
+    return {
+      ok: false,
+      error: '檔案無法匯入，目前資料沒有變更。',
+      pages: current.pages,
+      rawPages: current.rawPages,
+      slotsPerPage: current.slotsPerPage,
+      categoryOrder: current.categoryOrder.slice()
+    };
+  }
+
+  function importBackup(data, current) {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return rejectImport(current);
+    if (!Object.prototype.hasOwnProperty.call(data, 'formatVersion')) {
+      const pages = {};
+      for (let p = 1; p <= PAGE_COUNT; p += 1) {
+        const value = data[String(p)];
+        if (!Array.isArray(value)) return rejectImport(current);
+        const norm = normalizeItemArray(value);
+        if (!norm.ok) return rejectImport(current);
+        pages[String(p)] = padPage(norm.items);
+      }
+      return { ok: true, error: '', pages, rawPages: {}, slotsPerPage: current.slotsPerPage, categoryOrder: current.categoryOrder.slice() };
+    }
+    if (data.format !== 'wuyi-quick-reply-backup' || data.formatVersion !== 2) return rejectImport(current);
+    if (![10, 15, 20].includes(data.slotsPerPage) || !isCategoryPermutation(data.categoryOrder)) return rejectImport(current);
+    const pagesIn = data.pages && typeof data.pages === 'object' && !Array.isArray(data.pages) ? data.pages : null;
+    const rawIn = data.rawPages && typeof data.rawPages === 'object' && !Array.isArray(data.rawPages) ? data.rawPages : {};
+    if (!pagesIn) return rejectImport(current);
+    for (const key of Object.keys(rawIn)) if (!/^(10|[1-9])$/.test(key)) return rejectImport(current);
+    const pages = {};
+    const rawPages = {};
+    for (let p = 1; p <= PAGE_COUNT; p += 1) {
+      const key = String(p);
+      const inPages = Object.prototype.hasOwnProperty.call(pagesIn, key);
+      const inRaw = Object.prototype.hasOwnProperty.call(rawIn, key);
+      if (inPages === inRaw) return rejectImport(current);
+      if (inRaw) {
+        if (Array.isArray(rawIn[key])) return rejectImport(current);
+        rawPages[key] = rawIn[key];
+        pages[key] = Array(MAX_STORED_SLOTS).fill(null);
+      } else {
+        if (!Array.isArray(pagesIn[key])) return rejectImport(current);
+        const norm = normalizeItemArray(pagesIn[key]);
+        if (!norm.ok) return rejectImport(current);
+        pages[key] = padPage(norm.items);
+      }
+    }
+    return { ok: true, error: '', pages, rawPages, slotsPerPage: data.slotsPerPage, categoryOrder: data.categoryOrder.slice() };
+  }
+
+  function applyBatchSlot(previous, form) {
+    const title = String(form.title || '').trim();
+    const text = String(form.text || '').trim();
+    if (!title && !text) return null;
+    const base = cloneItem(previous) || {};
+    base.category = form.category || '⭐️';
+    base.title = title;
+    base.text = text;
+    if (!base.id) base.id = `slot_${form.page}_${form.index}`;
+    return base;
+  }
+
+  function applyBatchPage(page, forms) {
+    const next = page.slice();
+    for (let i = 0; i < MAX_STORED_SLOTS; i += 1) next[i] = applyBatchSlot(page[i], { ...forms[i], index: i });
+    return next;
+  }
+
+  function commitBatchPage(pages, rawPages, pageNumber, forms) {
+    const key = String(pageNumber);
+    const nextRaw = { ...rawPages };
+    delete nextRaw[key];
+    const base = Array.isArray(pages[key]) ? pages[key] : Array(MAX_STORED_SLOTS).fill(null);
+    const formsWithPage = forms.map(form => ({ ...form, page: pageNumber }));
+    return { pages: { ...pages, [key]: applyBatchPage(base, formsWithPage) }, rawPages: nextRaw };
+  }
+
+  function findEmptySlot(pages, visibleSlots, rawPages) {
+    const blocked = rawPages || {};
+    function scan(hidden) {
+      for (let p = 1; p <= PAGE_COUNT; p += 1) {
+        const key = String(p);
+        if (Object.prototype.hasOwnProperty.call(blocked, key)) continue;
+        const page = pages[key];
+        if (!Array.isArray(page)) continue;
+        const start = hidden ? visibleSlots : 0;
+        const end = hidden ? page.length : Math.min(visibleSlots, page.length);
+        for (let s = start; s < end; s += 1) if (!page[s]) return { page: p, slot: s, hidden };
+      }
+      return null;
+    }
+    return scan(false) || scan(true);
+  }
+
   const INSERT_REJECT = '目標頁放不下這次插入，資料沒有變更。可以改用互換。';
 
   function insertSlot(pages, srcPage, srcSlot, dstPage, dstSlot, visibleSlots) {
@@ -188,6 +330,8 @@
     PAGE_COUNT, MAX_STORED_SLOTS, DEFAULT_VISIBLE,
     padPage, normalizePages, serializePagesForStorage, pagesFromFlatList,
     parseVisibleSlots, hiddenNotice, pageAriaLabel, pageHasHidden, rawPageNotice,
-    moveRelative, moveExtreme, swapSlots, insertSlot
+    moveRelative, moveExtreme, swapSlots, insertSlot,
+    DEFAULT_CATEGORY_ORDER, isCategoryPermutation, exportBackup, importBackup,
+    applyBatchSlot, applyBatchPage, commitBatchPage, findEmptySlot
   };
 });

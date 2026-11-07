@@ -1084,7 +1084,9 @@
       hasBag: false,
       cakePrice: 0,
       hasIceBag: false,
-      addons: { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0 }
+      addons: WuyiModel.emptyQuoteAddons(),
+      customName: '',
+      customAmount: ''
     };
 
     function toggleQuoteCollapse() {
@@ -1140,12 +1142,14 @@
     }
 
     function cycleAddon(key, unitPrice, label) {
-      quoteState.addons[key] = (quoteState.addons[key] + 1) % 6; // 0 ~ 5 循環
+      quoteState.addons[key] = WuyiModel.cycleCount(quoteState.addons[key] || 0);
       const count = quoteState.addons[key];
-      const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c45: 'btnC45', c55: 'btnC55' };
-      const btn = document.getElementById(btnMap[key]);
-
-      if (count === 0) {
+      const btn = document.getElementById(WuyiModel.ADDON_BUTTON_IDS[key]);
+      if (!btn) return;
+      if (key === 'c30') {
+        btn.classList.toggle('active', count > 0);
+        btn.textContent = WuyiModel.candleButtonText(count);
+      } else if (count === 0) {
         btn.classList.remove('active');
         btn.textContent = `${label} +$${unitPrice}`;
       } else {
@@ -1162,43 +1166,24 @@
     }
 
     function getQuoteSummary() {
-      let items = [];
-      let total = 0;
+      return WuyiModel.quoteSummary(quoteState);
+    }
 
-      let fPrice = quoteState.hasFlower390 ? 390 : quoteState.customFlowerPrice;
-      if (fPrice > 0) { items.push(`花束$${fPrice}`); total += fPrice; }
-      if (quoteState.hasBag) { items.push(`提袋$40`); total += 40; }
-      if (quoteState.cakePrice > 0) { items.push(`蛋糕$${quoteState.cakePrice}`); total += quoteState.cakePrice; }
-
-      const addonConfigs = {
-        u2: { name: '2人餐具', price: 15 },
-        u5: { name: '5人餐具', price: 30 },
-        u10: { name: '10人餐具', price: 50 },
-        c45: { name: '蠟燭', price: 45 },
-        c55: { name: '蠟燭', price: 55 }
-      };
-
-      Object.keys(quoteState.addons).forEach(k => {
-        const cnt = quoteState.addons[k];
-        if (cnt > 0) {
-          const p = cnt * addonConfigs[k].price;
-          items.push(cnt === 1 ? `${addonConfigs[k].name}$${p}` : `${addonConfigs[k].name}x${cnt}$${p}`);
-          total += p;
-        }
-      });
-
-      if (quoteState.hasIceBag) { items.push(`保冰袋$100`); total += 100; }
-
-      return { items, total };
+    function onCustomAddonInput() {
+      quoteState.customName = document.getElementById('customAddonName').value;
+      quoteState.customAmount = document.getElementById('customAddonAmount').value;
+      calcQuote();
     }
 
     function calcQuote() {
-      const { total } = getQuoteSummary();
-      document.getElementById('totalBadge').textContent = `加總 $${total}`;
+      const summary = getQuoteSummary();
+      document.getElementById('totalBadge').textContent = `加總 $${summary.total}`;
       const tv = document.getElementById('quoteTotalValue');
-      if (tv) tv.textContent = `$${total}`;
+      if (tv) tv.textContent = `$${summary.total}`;
       const ti = document.getElementById('quoteTotalItems');
-      if (ti) { const { items } = getQuoteSummary(); ti.textContent = items.length ? items.join('　') : '尚未選擇品項'; }
+      if (ti) ti.textContent = summary.items.length ? summary.items.join('　') : '尚未選擇品項';
+      const err = document.getElementById('customAddonError');
+      if (err) err.textContent = summary.blocked ? `${summary.custom.banner}。${summary.custom.error}` : '';
     }
 
     function buildQuoteText() {
@@ -1208,23 +1193,18 @@
     }
 
     function copyQuoteText() {
-      const { items } = getQuoteSummary();
-      if (items.length === 0) {
-        showToast('請先選擇或輸入至少一項品項金額！', '⚠️');
-        return;
-      }
-      const text = buildQuoteText();
-      performSafeCopy(text, () => {
+      const summary = getQuoteSummary();
+      if (summary.blocked) { showToast(summary.custom.error, '⚠️'); return; }
+      if (!summary.items.length) { showToast('請先選擇或輸入至少一項品項金額！', '⚠️'); return; }
+      performSafeCopy(buildQuoteText(), () => {
         showToast('已複製報價文案！請直接貼到官方 LINE 對話框');
       });
     }
 
     function pasteQuoteText() {
-      const { items } = getQuoteSummary();
-      if (items.length === 0) {
-        showToast('請先選擇或輸入至少一項品項金額！', '⚠️');
-        return;
-      }
+      const summary = getQuoteSummary();
+      if (summary.blocked) { showToast(summary.custom.error, '⚠️'); return; }
+      if (!summary.items.length) { showToast('請先選擇或輸入至少一項品項金額！', '⚠️'); return; }
       window.WuyiPaste.pasteToLine(buildQuoteText());
     }
 
@@ -1243,7 +1223,9 @@
       quoteState.hasBag = false;
       quoteState.cakePrice = 0;
       quoteState.hasIceBag = false;
-      quoteState.addons = { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0 };
+      quoteState.addons = WuyiModel.emptyQuoteAddons();
+      quoteState.customName = '';
+      quoteState.customAmount = '';
 
       document.getElementById('btnFlower').classList.remove('active');
       document.getElementById('flowerCustomPrice').value = '';
@@ -1259,6 +1241,15 @@
         b.classList.remove('active');
         b.textContent = labelMap[k];
       });
+      const candle = document.getElementById('btnC30');
+      if (candle) {
+        candle.classList.remove('active');
+        candle.textContent = '數字蠟燭 $30';
+      }
+      const customName = document.getElementById('customAddonName');
+      const customAmount = document.getElementById('customAddonAmount');
+      if (customName) customName.value = '';
+      if (customAmount) customAmount.value = '';
 
       calcQuote();
       showToast('已重設報價金額');

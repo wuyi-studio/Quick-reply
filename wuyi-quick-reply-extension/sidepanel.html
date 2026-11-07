@@ -103,8 +103,12 @@
               <button type="button" class="btn-addon-cycle" id="btnU10" data-on-click="cycleAddon('u10', 50, '10人餐具')">10人餐具 +$50</button>
               <button type="button" class="btn-addon-cycle" id="btnC45" data-on-click="cycleAddon('c45', 45, '蠟燭$45')">蠟燭 $45</button>
               <button type="button" class="btn-addon-cycle" id="btnC55" data-on-click="cycleAddon('c55', 55, '蠟燭$55')">蠟燭 $55</button>
+              <button type="button" class="btn-addon-cycle" id="btnC30" data-on-click="cycleAddon('c30', 30, '數字蠟燭')">數字蠟燭 $30</button>
               <button type="button" class="btn-addon-cycle" id="btnIce" data-on-click="toggleIceBag()">🧊保冰袋 +$100</button>
             </div>
+            <input id="customAddonName" type="text" data-on-input="onCustomAddonInput()" placeholder="自訂品項名稱">
+            <input id="customAddonAmount" type="text" inputmode="numeric" data-on-input="onCustomAddonInput()" placeholder="金額">
+            <div id="customAddonError"></div>
           </div>
 
           <div class="sp-q-total">

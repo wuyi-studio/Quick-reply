@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { boot, click } from './harness.mjs';
 
 test('harness renders a synthetic card through the real builder', () => {
@@ -138,4 +139,29 @@ test('batch editor shows 20 rows and single add prefers a visible hole', () => {
   const stored = JSON.parse(ctx.localStorage.getItem('wuyi_100_pages_data'));
   assert.equal(stored['1'][3].title, '合成新');
   assert.deepEqual(stored['2'], { kept: true });
+});
+
+test('candle button and custom addon share the real quote total', () => {
+  const sidepanel = fs.readFileSync(new URL('../sidepanel.html', import.meta.url), 'utf8');
+  assert.match(sidepanel, /id="btnC30"[^>]*>數字蠟燭 \$30</);
+  assert.match(sidepanel, /id="customAddonAmount"[^>]*inputmode="numeric"/);
+  const ctx = boot({ storage: { wuyi_defaults_version: '1.0.2-003851d4', wuyi_100_pages_data: '{}' } });
+  ctx.resetQuote();
+  assert.equal(ctx.document.getElementById('btnC30').textContent, '數字蠟燭 $30');
+  ctx.cycleAddon('c30', 30, '數字蠟燭');
+  ctx.cycleAddon('c30', 30, '數字蠟燭');
+  assert.equal(ctx.document.getElementById('btnC30').textContent, '數字蠟燭 x2 +$60');
+  ctx.document.getElementById('customAddonName').value = '合成蠟燭';
+  ctx.document.getElementById('customAddonAmount').value = '30';
+  ctx.onCustomAddonInput();
+  assert.match(ctx.document.getElementById('quoteTotalItems').textContent, /數字蠟燭x2\$60/);
+  assert.match(ctx.document.getElementById('quoteTotalItems').textContent, /合成蠟燭\$30/);
+  ctx.document.getElementById('customAddonAmount').value = '1.5';
+  ctx.onCustomAddonInput();
+  ctx.pasteQuoteText();
+  assert.equal(ctx.__pasteLog.length, 0);
+  assert.match(ctx.document.getElementById('customAddonError').textContent, /自訂加購尚未計入總價/);
+  ctx.resetQuote();
+  assert.equal(ctx.document.getElementById('btnC30').textContent, '數字蠟燭 $30');
+  assert.equal(ctx.document.getElementById('customAddonName').value, '');
 });

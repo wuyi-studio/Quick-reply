@@ -27,6 +27,7 @@ function createElementClass() {
       },
       contains(name) { return classes.has(name); }
     };
+    this.scrollIntoView = function () {};
   }
   Element.prototype.getAttribute = function (name) {
     return Object.prototype.hasOwnProperty.call(this.attrs, name) ? this.attrs[name] : null;

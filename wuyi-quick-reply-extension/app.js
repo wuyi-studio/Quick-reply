@@ -290,7 +290,9 @@
       }
     ];
 
-    // 初始化 10 頁 x 10 欄位資料結構
+    // 初始化頁面。可見格數只影響畫面，不搬動已存索引。
+    let rawPages = {};
+    let visibleSlots = WuyiModel.parseVisibleSlots(localStorage.getItem('wuyi_slots_per_page'));
     let pagesData = loadPagesDataFromStorage();
     migrateOfficialDefaults();
 
@@ -318,13 +320,13 @@
         const clone = o => JSON.parse(JSON.stringify(o));
 
         const all = [];
-        for (let p = 1; p <= TOTAL_PAGES; p++) for (let s = 0; s < SLOTS_PER_PAGE; s++) if (pagesData[p][s]) all.push(pagesData[p][s]);
+        for (let p = 1; p <= TOTAL_PAGES; p++) for (let s = 0; s < (pagesData[p] ? pagesData[p].length : 0); s++) if (pagesData[p][s]) all.push(pagesData[p][s]);
 
         let updated = 0, removed = 0, added = 0, kept = 0, replacedAll = false;
         if (all.every(isUntouchedOld)) {
           // 全部都是沒動過的官方回覆 → 整批換新
           const data = {};
-          for (let p = 1; p <= TOTAL_PAGES; p++) data[p] = new Array(SLOTS_PER_PAGE).fill(null);
+          for (let p = 1; p <= TOTAL_PAGES; p++) data[p] = Array(WuyiModel.MAX_STORED_SLOTS).fill(null);
           defaultPage1Replies.forEach((d, i) => {
             const p = Math.floor(i / SLOTS_PER_PAGE) + 1;
             if (p <= TOTAL_PAGES) data[p][i % SLOTS_PER_PAGE] = clone(d);
@@ -333,7 +335,7 @@
           pagesData = data;
           replacedAll = changed;
         } else {
-          for (let p = 1; p <= TOTAL_PAGES; p++) for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+          for (let p = 1; p <= TOTAL_PAGES; p++) for (let s = 0; s < pagesData[p].length; s++) {
             const it = pagesData[p][s];
             if (!it) continue;
             if (isUntouchedOld(it)) {
@@ -347,7 +349,7 @@
           const present = new Set();
           for (let p = 1; p <= TOTAL_PAGES; p++) pagesData[p].forEach(it => { if (it && it.id) present.add(it.id); });
           const firstEmpty = () => {
-            for (let p = 1; p <= TOTAL_PAGES; p++) for (let s = 0; s < SLOTS_PER_PAGE; s++) if (!pagesData[p][s]) return { p, s };
+            for (let p = 1; p <= TOTAL_PAGES; p++) for (let s = 0; s < pagesData[p].length; s++) if (!pagesData[p][s]) return { p, s };
             return null;
           };
           defaultPage1Replies.forEach(d => {
@@ -374,67 +376,74 @@
       }
     }
 
-    function loadPagesDataFromStorage() {
-      let data = {};
+    function applyLegacyCategories(pages) {
       for (let p = 1; p <= TOTAL_PAGES; p++) {
-        data[p] = [];
-        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
-          data[p].push(null);
-        }
+        const page = pages[p];
+        if (!Array.isArray(page)) continue;
+        page.forEach(it => {
+          if (it) it.category = legacyCategoryMap[it.category] || it.category || '⭐️';
+        });
       }
+      return pages;
+    }
 
+    function loadPagesDataFromStorage() {
       try {
         const saved = localStorage.getItem('wuyi_100_pages_data');
         if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && typeof parsed === 'object') {
-            for (let p = 1; p <= TOTAL_PAGES; p++) {
-              if (Array.isArray(parsed[p])) {
-                for (let s = 0; s < SLOTS_PER_PAGE; s++) {
-                  const it = parsed[p][s];
-                  if (it) {
-                    it.category = legacyCategoryMap[it.category] || it.category || '⭐️';
-                  }
-                  data[p][s] = it || null;
-                }
-              }
-            }
-            return data;
+          let parsed = null;
+          try { parsed = JSON.parse(saved); } catch (e) { parsed = null; }
+          const normalized = WuyiModel.normalizePages(parsed || {});
+          rawPages = normalized.rawPages;
+          applyLegacyCategories(normalized.pages);
+          if (normalized.writeBack) {
+            localStorage.setItem('wuyi_100_pages_data', JSON.stringify(WuyiModel.serializePagesForStorage(normalized.pages, normalized.rawPages)));
           }
+          return normalized.pages;
         }
 
-        // 舊格式無縫平移
         const oldSaved = localStorage.getItem('wuyi_custom_replies');
         let oldList = defaultPage1Replies;
         if (oldSaved) {
           try {
-            const pOld = JSON.parse(oldSaved);
-            if (Array.isArray(pOld) && pOld.length > 0) oldList = pOld;
-          } catch(e){}
+            const parsedOld = JSON.parse(oldSaved);
+            if (Array.isArray(parsedOld) && parsedOld.length > 0) oldList = parsedOld;
+          } catch (e) {}
         }
-
-        oldList.forEach((item, idx) => {
-          const p = Math.floor(idx / 10) + 1;
-          const s = idx % 10;
-          if (p <= TOTAL_PAGES) {
-            item.category = legacyCategoryMap[item.category] || item.category || '⭐️';
-            data[p][s] = item;
-          }
+        oldList.forEach(item => {
+          if (item) item.category = legacyCategoryMap[item.category] || item.category || '⭐️';
         });
-
+        rawPages = {};
+        return WuyiModel.pagesFromFlatList(oldList);
       } catch (e) {
         console.error('Storage load error:', e);
+        rawPages = {};
+        return WuyiModel.pagesFromFlatList([]);
       }
-
-      return data;
     }
 
     function savePagesDataToStorage() {
       try {
-        localStorage.setItem('wuyi_100_pages_data', JSON.stringify(pagesData));
+        localStorage.setItem('wuyi_100_pages_data', JSON.stringify(WuyiModel.serializePagesForStorage(pagesData, rawPages)));
       } catch (e) {
         console.error('Storage save error:', e);
       }
+    }
+
+    function renderSlotsPerPageControl() {
+      const host = document.getElementById('slotsPerPageControl');
+      if (!host) return;
+      host.innerHTML = '<span>每頁格數</span>' + [10, 15, 20].map(n =>
+        `<button type="button" class="${n === visibleSlots ? 'active' : ''}" data-on-click="setVisibleSlotsFromUi(${n})" aria-label="每頁顯示 ${n} 格">${n}</button>`
+      ).join('');
+    }
+
+    function setVisibleSlotsFromUi(n) {
+      visibleSlots = n;
+      localStorage.setItem('wuyi_slots_per_page', String(n));
+      renderSlotsPerPageControl();
+      renderMainPageNav();
+      renderReplies();
     }
 
     // 渲染主畫面 10 頁切換列 (極簡 ◀ 1..10 ▶，支援懸停拖放換頁)
@@ -449,13 +458,16 @@
       `;
 
       for (let p = 1; p <= TOTAL_PAGES; p++) {
+        const label = WuyiModel.pageAriaLabel(p, pagesData[p] || [], visibleSlots);
+        const dot = WuyiModel.pageHasHidden(pagesData[p] || [], visibleSlots) ? '<span class="hidden-dot"></span>' : '';
         html += `
           <button type="button" 
                   class="page-num-btn ${p === currentPage ? 'active' : ''}" 
                   data-on-click="changeMainPage(${p})" 
                   data-on-dragover="handlePageButtonDragOver(event, ${p})"
-                  title="第 ${p} 頁 (拖曳懸停可切換)">
-            ${p}
+                  title="第 ${p} 頁 (拖曳懸停可切換)"
+                  aria-label="${label}">
+            ${p}${dot}
           </button>
         `;
       }
@@ -492,14 +504,15 @@
       let itemsToRender = [];
 
       if (isFiltering) {
-        // 搜尋或篩選時，跨全部 10 頁檢索
         for (let p = 1; p <= TOTAL_PAGES; p++) {
-          pagesData[p].forEach((item, slotIdx) => {
+          const page = pagesData[p];
+          if (!Array.isArray(page)) continue;
+          page.forEach((item, slotIdx) => {
             if (!item) return;
             const matchCategory = (currentCategory === 'all' || item.category === currentCategory);
             const matchKeyword = !searchKeyword || item.title.toLowerCase().includes(searchKeyword) || item.text.toLowerCase().includes(searchKeyword);
             if (matchCategory && matchKeyword) {
-              itemsToRender.push({ ...item, pageNum: p, slotIndex: slotIdx });
+              itemsToRender.push({ ...item, pageNum: p, slotIndex: slotIdx, hidden: slotIdx >= visibleSlots });
             }
           });
         }
@@ -512,13 +525,14 @@
           return;
         }
 
-        container.innerHTML = itemsToRender.map(item => buildReplyCardHtml(item, item.pageNum, item.slotIndex)).join('');
+        container.innerHTML = itemsToRender.map(item => buildReplyCardHtml(item, item.pageNum, item.slotIndex, item.hidden)).join('');
       } else {
-        // 一般模式：展示當前頁的 10 個欄位
-        const currentSlots = pagesData[currentPage];
-        let cardsHtml = '';
+        const currentSlots = pagesData[currentPage] || [];
+        const rawNote = Object.prototype.hasOwnProperty.call(rawPages, String(currentPage)) ? WuyiModel.rawPageNotice(currentPage) : '';
+        const hiddenNote = rawNote || WuyiModel.hiddenNotice(currentSlots, visibleSlots);
+        let cardsHtml = hiddenNote ? `<div class="hidden-notice">${hiddenNote}</div>` : '';
 
-        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+        for (let s = 0; s < visibleSlots; s++) {
           const item = currentSlots[s];
           if (item) {
             cardsHtml += buildReplyCardHtml(item, currentPage, s);
@@ -1639,6 +1653,7 @@
     // 初始化渲染與讀取模式 (預設為適合上下堆疊分割的靠下模式)
     const savedMode = localStorage.getItem('wuyi_split_mode') || 'right';
     setSplitMode(savedMode, true);
+    renderSlotsPerPageControl();
     renderMainPageNav();
     renderReplies();
   

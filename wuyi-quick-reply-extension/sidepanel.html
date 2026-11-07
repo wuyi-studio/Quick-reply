@@ -46,6 +46,7 @@
 
       <!-- 10 頁切換列 (極簡單列) -->
       <div class="page-nav-container">
+        <div class="slots-per-page" id="slotsPerPageControl" role="group" aria-label="每頁格數"></div>
         <div class="page-pills-row" id="mainPagePills">
           <!-- ◀ 1 2 3 4 5 6 7 8 9 10 ▶ 由 JS 動態生成 -->
         </div>
@@ -336,6 +337,7 @@
     <span id="toastMsg">已複製！請直接貼到官方 LINE 對話框</span>
   </div>
 
+  <script src="model.js"></script>
   <script src="events.js"></script>
   <script src="paste.js"></script>
   <script src="window-mode.js"></script>

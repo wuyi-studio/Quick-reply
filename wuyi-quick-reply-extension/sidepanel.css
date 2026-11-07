@@ -550,6 +550,12 @@
     }
 
     /* 10 頁導航切換條 (極簡單行) */
+    .slots-per-page { display: flex; gap: 4px; align-items: center; font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+    .slots-per-page button.active { background: #0f172a; color: #fff; }
+    .page-num-btn .hidden-dot { width: 5px; height: 5px; border-radius: 50%; background: #0284c7; display: inline-block; margin-left: 2px; }
+    .hidden-slot-badge { font-size: 10px; color: #0284c7; font-weight: 700; }
+    .hidden-notice { font-size: 12px; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 6px 8px; }
+
     .page-nav-container {
       background: #ffffff;
       border: 1.2px solid var(--border);

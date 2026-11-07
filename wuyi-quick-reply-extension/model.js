@@ -357,6 +357,65 @@
     return options;
   }
 
+  const ADDON_CATALOG = {
+    u2: { name: '2人餐具', price: 15 },
+    u5: { name: '5人餐具', price: 30 },
+    u10: { name: '10人餐具', price: 50 },
+    c45: { name: '蠟燭', price: 45 },
+    c55: { name: '蠟燭', price: 55 },
+    c30: { name: '數字蠟燭', price: 30 }
+  };
+  const ADDON_KEY_ORDER = ['u2', 'u5', 'u10', 'c45', 'c55', 'c30'];
+  const ADDON_BUTTON_IDS = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c45: 'btnC45', c55: 'btnC55', c30: 'btnC30' };
+  const PASTE_BLOCK = new Set(['button', 'a', 'input', 'textarea', 'select', 'label']);
+
+  function cycleCount(count) { return (Number(count) + 1) % 6; }
+  function emptyQuoteAddons() { return { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0, c30: 0 }; }
+  function candleButtonText(count) {
+    if (!count) return '數字蠟燭 $30';
+    return `數字蠟燭 x${count} +$${count * 30}`;
+  }
+  function normalizeCustomName(raw) {
+    return String(raw ?? '').replace(/[\r\n\t]/g, ' ').trim().replace(/ +/g, ' ');
+  }
+  function validateCustomAddon(nameRaw, amountRaw) {
+    const name = normalizeCustomName(nameRaw);
+    const amountText = String(amountRaw ?? '').trim();
+    const fail = (error) => ({ ok: false, include: false, name, amount: 0, error, banner: '自訂加購尚未計入總價' });
+    if (!name && !amountText) return { ok: true, include: false, name: '', amount: 0, error: '', banner: '' };
+    if (Array.from(name).length > 30) return fail('品項名稱最多 30 個字');
+    if (!name) return fail('請輸入品項名稱');
+    if (!/^[0-9]+$/.test(amountText)) return fail('金額請輸入 1 到 999999 的整數');
+    const amount = Number(amountText);
+    if (amount < 1 || amount > 999999) return fail('金額請輸入 1 到 999999 的整數');
+    return { ok: true, include: true, name, amount, error: '', banner: '' };
+  }
+  function quoteSummary(state) {
+    const items = [];
+    let total = 0;
+    const flower = state.hasFlower390 ? 390 : (state.customFlowerPrice || 0);
+    if (flower > 0) { items.push(`花束$${flower}`); total += flower; }
+    if (state.hasBag) { items.push('提袋$40'); total += 40; }
+    if (state.cakePrice > 0) { items.push(`蛋糕$${state.cakePrice}`); total += state.cakePrice; }
+    ADDON_KEY_ORDER.forEach(key => {
+      const count = state.addons[key] || 0;
+      if (!count) return;
+      const price = count * ADDON_CATALOG[key].price;
+      items.push(count === 1 ? `${ADDON_CATALOG[key].name}$${price}` : `${ADDON_CATALOG[key].name}x${count}$${price}`);
+      total += price;
+    });
+    if (state.hasIceBag) { items.push('保冰袋$100'); total += 100; }
+    const custom = validateCustomAddon(state.customName, state.customAmount);
+    if (custom.include) { items.push(`${custom.name}$${custom.amount}`); total += custom.amount; }
+    return { items, total, custom, blocked: !custom.ok };
+  }
+  function shouldPaste(ancestorTags) {
+    return !ancestorTags.some(tag => PASTE_BLOCK.has(String(tag).toLowerCase()));
+  }
+  function shouldStartCardDrag(ancestorTags) {
+    return !ancestorTags.some(tag => String(tag).toLowerCase() === 'button');
+  }
+
   return {
     PAGE_COUNT, MAX_STORED_SLOTS, DEFAULT_VISIBLE,
     padPage, normalizePages, serializePagesForStorage, pagesFromFlatList,
@@ -364,6 +423,8 @@
     moveRelative, moveExtreme, swapSlots, insertSlot,
     DEFAULT_CATEGORY_ORDER, isCategoryPermutation, exportBackup, importBackup,
     applyBatchSlot, applyBatchPage, commitBatchPage, findEmptySlot,
-    moveCategory, swapCategoryNeighbor, parseCategoryOrder, categoryOptions
+    moveCategory, swapCategoryNeighbor, parseCategoryOrder, categoryOptions,
+    ADDON_CATALOG, ADDON_KEY_ORDER, ADDON_BUTTON_IDS, cycleCount, emptyQuoteAddons,
+    candleButtonText, validateCustomAddon, quoteSummary, shouldPaste, shouldStartCardDrag
   };
 });

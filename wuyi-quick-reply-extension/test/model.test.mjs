@@ -232,3 +232,53 @@ test('unknown category is appended for one dropdown only', () => {
   assert.equal(M.parseCategoryOrder('["💐"]')[0], M.DEFAULT_CATEGORY_ORDER[0]);
   assert.equal(M.parseCategoryOrder('["💐"]').length, 13);
 });
+
+test('number candle cycles 0 through 5 and stays separate from u5', () => {
+  let count = 0;
+  const seen = [];
+  for (let i = 0; i < 6; i += 1) {
+    count = M.cycleCount(count);
+    seen.push(count);
+  }
+  assert.deepEqual(seen, [1, 2, 3, 4, 5, 0]);
+  const state = {
+    hasFlower390: false, customFlowerPrice: 0, hasBag: false, cakePrice: 0, hasIceBag: false,
+    addons: { ...M.emptyQuoteAddons(), u5: 1, c30: 5 },
+    customName: '', customAmount: ''
+  };
+  const summary = M.quoteSummary(state);
+  assert.equal(M.ADDON_CATALOG.u5.price, 30);
+  assert.equal(M.ADDON_CATALOG.c30.price, 30);
+  assert.ok(summary.items.includes('5人餐具$30'));
+  assert.ok(summary.items.includes('數字蠟燭x5$150'));
+  assert.equal(summary.total, 180);
+  assert.equal(M.candleButtonText(0), '數字蠟燭 $30');
+  assert.equal(M.candleButtonText(2), '數字蠟燭 x2 +$60');
+});
+
+test('custom addon validates amount and blocks a partial line', () => {
+  const good = M.quoteSummary({
+    hasFlower390: false, customFlowerPrice: 0, hasBag: false, cakePrice: 0, hasIceBag: false,
+    addons: M.emptyQuoteAddons(), customName: '合成蠟燭', customAmount: '30'
+  });
+  assert.equal(good.total, 30);
+  assert.deepEqual(good.items, ['合成蠟燭$30']);
+  assert.equal(good.blocked, false);
+  for (const amount of ['1.5', '-1', '0', '']) {
+    const bad = M.validateCustomAddon('合成蠟燭', amount);
+    assert.equal(bad.include, false);
+    assert.equal(bad.error, '金額請輸入 1 到 999999 的整數');
+  }
+  assert.equal(M.validateCustomAddon('', '30').error, '請輸入品項名稱');
+  assert.equal(M.validateCustomAddon('花'.repeat(31), '30').error, '品項名稱最多 30 個字');
+  assert.equal(M.validateCustomAddon('  合成   蠟燭 \n', '30').name, '合成 蠟燭');
+});
+
+test('quote reset values and paste guards', () => {
+  assert.deepEqual(M.emptyQuoteAddons(), { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0, c30: 0 });
+  assert.equal(M.shouldPaste(['span', 'div']), true);
+  assert.equal(M.shouldPaste(['span', 'button', 'div']), false);
+  assert.equal(M.shouldPaste(['a']), false);
+  assert.equal(M.shouldStartCardDrag(['span', 'button']), false);
+  assert.equal(M.shouldStartCardDrag(['div']), true);
+});

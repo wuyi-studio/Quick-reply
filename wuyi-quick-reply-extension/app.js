@@ -293,6 +293,8 @@
     // 初始化頁面。可見格數只影響畫面，不搬動已存索引。
     let rawPages = {};
     let visibleSlots = WuyiModel.parseVisibleSlots(localStorage.getItem('wuyi_slots_per_page'));
+    let categoryOrder = WuyiModel.parseCategoryOrder(localStorage.getItem('wuyi_category_order'));
+    let categoryDrag = null;
     let pagesData = loadPagesDataFromStorage();
     migrateOfficialDefaults();
 
@@ -845,7 +847,7 @@
       const container = document.getElementById('tenSlotsContainer');
       if (!container) return;
 
-      const catOptions = ['💐', '🌹', '🎂', '🍔', '🔥', '🚗', '⭐️', '‼️', '❓', '😊', '👍', '💙', '❤️'].map(e => ({ value: e, label: e }));
+      const catOptions = WuyiModel.categoryOptions(categoryOrder, '').map(e => ({ value: e, label: e }));
 
       const currentSlots = pagesData[modalPage];
       let html = '';
@@ -1596,10 +1598,78 @@
     }
 
 
+    function renderCategorySelect(select, current) {
+      if (!select) return;
+      const options = WuyiModel.categoryOptions(categoryOrder, current);
+      select.innerHTML = options.map(value => `<option value="${value}"${value === current ? ' selected' : ''}>${value}</option>`).join('');
+    }
+
+    function persistCategoryOrder() {
+      localStorage.setItem('wuyi_category_order', JSON.stringify(categoryOrder));
+      renderCategoryPills();
+      renderCategorySelect(document.getElementById('newReplyCat'), document.getElementById('newReplyCat')?.value);
+      renderCategorySelect(document.getElementById('editReplyCat'), document.getElementById('editReplyCat')?.value);
+    }
+
+    function renderCategoryPills() {
+      const host = document.getElementById('categoryPills');
+      if (!host) return;
+      const all = `<button type="button" class="cat-pill" data-on-click="onCategoryPillClick('all', this)">🌟</button>`;
+      const rest = categoryOrder.map((cat, index) =>
+        `<button type="button" class="cat-pill" draggable="true" data-category-index="${index}" data-on-click="onCategoryPillClick('${cat}', this)" data-on-keydown="onCategoryKeyDown(event)" data-on-dragstart="startCategoryDrag(event, ${index})" data-on-drop="dropCategory(event, ${index})" data-on-dragover="allowCategoryDrag(event)">${cat}</button>`
+      ).join('');
+      host.innerHTML = all + rest;
+      const editor = document.getElementById('categoryOrderEditor');
+      if (editor) {
+        editor.innerHTML = categoryOrder.map((cat, index) =>
+          `<div><span>${cat}</span><button type="button" data-on-click="moveCategoryFromUi(${index}, -1)" ${index === 0 ? 'disabled' : ''}>上移</button><button type="button" data-on-click="moveCategoryFromUi(${index}, 1)" ${index === categoryOrder.length - 1 ? 'disabled' : ''}>下移</button></div>`
+        ).join('');
+      }
+    }
+
+    function onCategoryKeyDown(event) {
+      if (!event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return;
+      const host = event.target && event.target.closest ? event.target.closest('[data-category-index]') : null;
+      if (!host) return;
+      event.preventDefault();
+      const index = Number(host.getAttribute('data-category-index'));
+      categoryOrder = WuyiModel.swapCategoryNeighbor(categoryOrder, index, event.key === 'ArrowLeft' ? -1 : 1);
+      persistCategoryOrder();
+    }
+
+    function startCategoryDrag(event, index) {
+      categoryDrag = { index, x: event.clientX || 0, y: event.clientY || 0 };
+      if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+    }
+
+    function allowCategoryDrag(event) { event.preventDefault(); }
+
+    function dropCategory(event, to) {
+      event.preventDefault();
+      if (!categoryDrag) return;
+      const distance = Math.hypot((event.clientX || 0) - categoryDrag.x, (event.clientY || 0) - categoryDrag.y);
+      const from = categoryDrag.index;
+      categoryDrag = null;
+      if (distance < 8 || from === to) return;
+      categoryOrder = WuyiModel.moveCategory(categoryOrder, from, to);
+      persistCategoryOrder();
+    }
+
+    function moveCategoryFromUi(index, direction) {
+      categoryOrder = WuyiModel.swapCategoryNeighbor(categoryOrder, index, direction);
+      persistCategoryOrder();
+    }
+
+    function onCategoryPillClick(cat, el) {
+      if (categoryDrag) return;
+      selectCategory(cat, el);
+    }
+
     // 初始化渲染與讀取模式 (預設為適合上下堆疊分割的靠下模式)
     const savedMode = localStorage.getItem('wuyi_split_mode') || 'right';
     setSplitMode(savedMode, true);
     renderSlotsPerPageControl();
+    renderCategoryPills();
     renderMainPageNav();
     renderReplies();
   

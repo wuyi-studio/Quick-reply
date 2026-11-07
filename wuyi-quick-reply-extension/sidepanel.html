@@ -26,22 +26,7 @@
       <!-- 搜尋與分類膠囊 (純 EMOJI) -->
       <div class="search-filter-row">
         <input type="text" class="search-input-box" id="searchInput" placeholder="🔍 搜尋回覆關鍵字（如：匯款、蛋糕、花束、取貨、運費...）" data-on-input="filterReplies()">
-        <div class="category-pills">
-          <button type="button" class="cat-pill active" data-on-click="selectCategory('all', this)">🌟</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('💐', this)">💐</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('🌹', this)">🌹</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('🎂', this)">🎂</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('🍔', this)">🍔</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('🔥', this)">🔥</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('🚗', this)">🚗</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('⭐️', this)">⭐️</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('‼️', this)">‼️</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('❓', this)">❓</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('😊', this)">😊</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('👍', this)">👍</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('💙', this)">💙</button>
-          <button type="button" class="cat-pill" data-on-click="selectCategory('❤️', this)">❤️</button>
-        </div>
+        <div class="category-pills" id="categoryPills"></div>
       </div>
 
       <!-- 10 頁切換列 (極簡單列) -->
@@ -147,6 +132,7 @@
       </div>
 
       <!-- 分頁切換 -->
+      <div id="categoryOrderEditor"></div>
       <div class="modal-tab-bar">
         <button type="button" class="modal-tab-btn active" id="tabBtnBatch" data-on-click="switchModalTab('batch')">📥 10 筆匯入設定</button>
         <button type="button" class="modal-tab-btn" id="tabBtnSingle" data-on-click="switchModalTab('single')">➕ 新增單筆</button>

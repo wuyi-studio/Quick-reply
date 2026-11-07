@@ -90,3 +90,30 @@ test('search shows a hidden card with its slot label', () => {
   assert.match(filtered, /第 1 頁第 13 格/);
   assert.equal(filtered.includes('draggable="true"'), false);
 });
+
+test('category alt-left reorders pills and both dropdowns', () => {
+  const ctx = boot({ storage: { wuyi_defaults_version: '1.0.2-003851d4', wuyi_100_pages_data: JSON.stringify({ '1': [] }) } });
+  ctx.renderCategoryPills();
+  const before = ctx.document.getElementById('categoryPills').innerHTML;
+  assert.match(before, /selectCategory\('all'|onCategoryPillClick\('all'/);
+  assert.match(before, /data-on-keydown="onCategoryKeyDown\(event\)"/);
+  const first = ctx.WuyiModel.DEFAULT_CATEGORY_ORDER[0];
+  const second = ctx.WuyiModel.DEFAULT_CATEGORY_ORDER[1];
+  assert.ok(before.indexOf(first) < before.indexOf(second));
+  const key = {
+    key: 'ArrowLeft',
+    altKey: true,
+    preventDefault() {},
+    target: {
+      tagName: 'BUTTON',
+      closest() { return this; },
+      getAttribute(name) { return name === 'data-category-index' ? '1' : null; }
+    }
+  };
+  ctx.onCategoryKeyDown(key);
+  const after = ctx.document.getElementById('categoryPills').innerHTML;
+  assert.ok(after.indexOf(second) < after.indexOf(first));
+  assert.match(ctx.document.getElementById('newReplyCat').innerHTML, new RegExp(first));
+  assert.match(ctx.document.getElementById('editReplyCat').innerHTML, new RegExp(first));
+  assert.equal(ctx.localStorage.getItem('wuyi_category_order') !== null, true);
+});

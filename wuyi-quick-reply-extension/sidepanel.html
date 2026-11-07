@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>梧藝客服小幫手</title>
+  <link rel="stylesheet" href="sidepanel.css">
+  <link rel="stylesheet" href="extension.css">
+</head>
+<body class="mode-right">
+
+  <!-- 頂部固定資訊列 -->
+  <header class="top-header sp-header">
+    <span class="app-title">🌸 梧藝客服小幫手</span>
+    <div class="sp-header-icons">
+      <button type="button" class="sp-icon-btn" id="btnWindowToggle" title="切換成小視窗" aria-label="切換成小視窗">🪟</button>
+      <button type="button" class="sp-icon-btn" data-on-click="openManageModal()" title="管理／匯入常用回覆" aria-label="管理／匯入">⚙️</button>
+      <a href="https://chat.line.biz/" target="_blank" rel="noopener" class="sp-icon-btn sp-icon-line" title="在新分頁開啟 LINE 官方帳號網頁版聊天" aria-label="開啟 LINE 聊天">💬</a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 1. 常用回覆問題列表 (左欄 / 置頂) -->
+    <section class="faq-section">
+      <!-- 搜尋與分類膠囊 (純 EMOJI) -->
+      <div class="search-filter-row">
+        <input type="text" class="search-input-box" id="searchInput" placeholder="🔍 搜尋回覆關鍵字（如：匯款、蛋糕、花束、取貨、運費...）" data-on-input="filterReplies()">
+        <div class="category-pills">
+          <button type="button" class="cat-pill active" data-on-click="selectCategory('all', this)">🌟</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('💐', this)">💐</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('🌹', this)">🌹</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('🎂', this)">🎂</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('🍔', this)">🍔</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('🔥', this)">🔥</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('🚗', this)">🚗</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('⭐️', this)">⭐️</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('‼️', this)">‼️</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('❓', this)">❓</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('😊', this)">😊</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('👍', this)">👍</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('💙', this)">💙</button>
+          <button type="button" class="cat-pill" data-on-click="selectCategory('❤️', this)">❤️</button>
+        </div>
+      </div>
+
+      <!-- 10 頁切換列 (極簡單列) -->
+      <div class="page-nav-container">
+        <div class="page-pills-row" id="mainPagePills">
+          <!-- ◀ 1 2 3 4 5 6 7 8 9 10 ▶ 由 JS 動態生成 -->
+        </div>
+      </div>
+
+      <!-- 回覆問題列表 (只顯示標題與三按鈕) -->
+      <div class="reply-cards-list" id="repliesContainer">
+        <!-- 由 JavaScript 動態渲染回覆卡片 -->
+      </div>
+    </section>
+
+    <!-- 右側輔助區塊 (靠下分割時顯示於右欄，靠右分割時順排在下方) -->
+    <div class="side-dock-container">
+      <!-- 2. 精簡版：語音輸入 ＆ AI 潤飾快速條 (單列整合) -->
+      <section class="compact-ai-bar sp-ai-bar">
+        <textarea class="compact-ai-textarea sp-ai-textarea" id="draftInput" rows="3" placeholder="臨時問答／語音輸入（點「✨ 潤飾」轉親切口吻）..."></textarea>
+        <div class="sp-ai-actions">
+          <button type="button" class="btn-voice-pill" id="btnVoice" data-on-click="toggleVoiceInput()" title="點擊語音輸入">
+            <span id="voiceIcon">🎤</span>
+            <span id="voiceText">語音</span>
+          </button>
+          <button type="button" class="btn-ai-pill" data-on-click="polishWithAI()" title="AI 一鍵潤飾為客氣親切口吻">
+            <span>✨ 潤飾</span>
+          </button>
+          <button type="button" class="btn-copy-pill" data-on-click="copyDraftText()" title="複製到剪貼簿">
+            <span>📋 複製</span>
+          </button>
+          <button type="button" class="btn-copy-pill btn-paste-pill" data-on-click="pasteDraftText()" title="貼進目前開著的 LINE 客人對話框（不會自動傳送）">
+            <span>📥 貼上</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. 收摺式：訂單報價試算器 (原本小幫手功能完整保留) -->
+      <section class="collapse-card sp-quote" id="quoteCollapse">
+        <div class="collapse-header" data-on-click="toggleQuoteCollapse()">
+          <div class="collapse-title-group">
+            <span class="collapse-title">📋 訂單報價試算器</span>
+            <span class="collapse-total-pill" id="totalBadge">加總 $0</span>
+          </div>
+          <span class="collapse-arrow">▼</span>
+        </div>
+
+        <div class="collapse-body sp-quote-body">
+          <div class="sp-q-section">
+            <div class="sp-q-title">💐 花束</div>
+            <div class="sp-q-grid sp-q-grid-2">
+              <button type="button" class="btn-item-toggle" id="btnFlower" data-on-click="toggleFlower()">💐 花束 $390</button>
+              <button type="button" class="btn-item-toggle" id="btnBag" data-on-click="toggleBag()">🛍️ 提袋 $40</button>
+            </div>
+            <input type="number" class="q-input sp-q-input" id="flowerCustomPrice" placeholder="花束自訂金額" data-on-input="onFlowerCustomInput()">
+          </div>
+
+          <div class="sp-q-section">
+            <div class="sp-q-title">🎂 蛋糕</div>
+            <div class="sp-q-grid sp-q-grid-3">
+              <button type="button" class="btn-item-toggle" id="cp760" data-on-click="setCakePreset(760)">760</button>
+              <button type="button" class="btn-item-toggle" id="cp1030" data-on-click="setCakePreset(1030)">1030</button>
+              <button type="button" class="btn-item-toggle" id="cp1060" data-on-click="setCakePreset(1060)">1060</button>
+            </div>
+            <input type="number" class="q-input sp-q-input" id="cakeCustomPrice" placeholder="蛋糕金額（可直接打字）" data-on-input="onCakeCustomInput()">
+          </div>
+
+          <div class="sp-q-section">
+            <div class="sp-q-title">➕ 加購 <span class="sp-q-hint">（按幾下＝幾份）</span></div>
+            <div class="sp-q-grid sp-q-grid-3">
+              <button type="button" class="btn-addon-cycle" id="btnU2" data-on-click="cycleAddon('u2', 15, '2人餐具')">2人餐具 +$15</button>
+              <button type="button" class="btn-addon-cycle" id="btnU5" data-on-click="cycleAddon('u5', 30, '5人餐具')">5人餐具 +$30</button>
+              <button type="button" class="btn-addon-cycle" id="btnU10" data-on-click="cycleAddon('u10', 50, '10人餐具')">10人餐具 +$50</button>
+              <button type="button" class="btn-addon-cycle" id="btnC45" data-on-click="cycleAddon('c45', 45, '蠟燭$45')">蠟燭 $45</button>
+              <button type="button" class="btn-addon-cycle" id="btnC55" data-on-click="cycleAddon('c55', 55, '蠟燭$55')">蠟燭 $55</button>
+              <button type="button" class="btn-addon-cycle" id="btnIce" data-on-click="toggleIceBag()">🧊保冰袋 +$100</button>
+            </div>
+          </div>
+
+          <div class="sp-q-total">
+            <div class="sp-q-total-items" id="quoteTotalItems">尚未選擇品項</div>
+            <div class="sp-q-total-sum">加總 <b id="quoteTotalValue">$0</b></div>
+          </div>
+
+          <div class="sp-q-actions">
+            <button type="button" class="btn-quote-copy" data-on-click="copyQuoteText()"><span>📋 複製報價</span></button>
+            <button type="button" class="btn-quote-copy btn-quote-paste" data-on-click="pasteQuoteText()" title="貼進目前開著的 LINE 客人對話框（不會自動傳送）"><span>📥 貼上</span></button>
+            <button type="button" class="btn-quote-reset" data-on-click="resetQuote()"><span>🗑️ 清空</span></button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- 管理與匯入常用回覆 Modal -->
+  <div class="modal-backdrop" id="manageModal" data-on-click="closeModalOnBg(event)">
+    <div class="modal-box">
+      <div class="modal-top">
+        <span class="modal-title">⚙️ 常用回覆管理與批次匯入</span>
+        <button type="button" class="btn-modal-close" data-on-click="closeManageModal()">✕</button>
+      </div>
+
+      <!-- 分頁切換 -->
+      <div class="modal-tab-bar">
+        <button type="button" class="modal-tab-btn active" id="tabBtnBatch" data-on-click="switchModalTab('batch')">📥 10 筆匯入設定</button>
+        <button type="button" class="modal-tab-btn" id="tabBtnSingle" data-on-click="switchModalTab('single')">➕ 新增單筆</button>
+        <button type="button" class="modal-tab-btn" id="tabBtnList" data-on-click="switchModalTab('list')">📝 現有回覆清單</button>
+      </div>
+
+      <!-- Tab 1: 10 頁 x 10 欄位設定 -->
+      <div class="modal-tab-content active" id="tabContentBatch">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#f8fafc; padding:6px 8px; border-radius:6px; border:1px solid var(--border);">
+          <span style="font-size:12px; font-weight:700; color:#0f172a;">選擇管理頁數：</span>
+          <div class="modal-page-selector" id="modalPageSelector">
+            <!-- 1 ~ 10 page buttons -->
+          </div>
+        </div>
+
+        <div style="font-size:11.5px; color:#64748b; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+          <span>正在編輯：<b id="editingPageLabel" style="color:var(--primary-dark);">第 1 頁（欄位 #1 ~ #10）</b></span>
+          <button type="button" class="btn-reset-data" style="padding:1px 6px; font-size:10.5px;" data-on-click="clearCurrentModalPageSlots()">清空本頁 10 格</button>
+        </div>
+        
+        <div id="tenSlotsContainer" style="display:flex; flex-direction:column; gap:8px; max-height:330px; overflow-y:auto; padding-right:4px;">
+          <!-- 10 個卡位由 JS 動態生成 -->
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-top:1px solid var(--border); padding-top:8px; gap:6px; flex-wrap:wrap;">
+          <div style="display:flex; gap:4px;">
+            <button type="button" class="btn-reset-data" data-on-click="exportBackupJson()" title="將所有編輯好的常用回覆下載為 JSON 備份檔">💾 備份下載</button>
+            <button type="button" class="btn-reset-data" data-on-click="triggerImportJson()" title="還原上傳備份檔">📂 還原匯入</button>
+            <input type="file" id="backupFileInput" accept=".json" style="display:none;" data-on-change="handleImportFile(event)">
+            <button type="button" class="btn-reset-data" data-on-click="resetToDefaultReplies()">🔄 恢復官方</button>
+          </div>
+          <button type="button" class="btn-primary-modal" data-on-click="saveCurrentModalPageSlots()">💾 儲存本頁 10 筆回覆</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: 單筆新增 -->
+      <div class="modal-tab-content" id="tabContentSingle">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆標題：</label>
+            <input type="text" id="newReplyTitle" class="modal-input" placeholder="例如：常客優惠折扣說明">
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:#334155;">類別標籤：</label>
+            <select id="newReplyCat" class="modal-input" style="font-size:14px;">
+              <option value="💐">💐</option>
+              <option value="🌹">🌹</option>
+              <option value="🎂">🎂</option>
+              <option value="🍔">🍔</option>
+              <option value="🔥">🔥</option>
+              <option value="🚗">🚗</option>
+              <option value="⭐️">⭐️</option>
+              <option value="‼️">‼️</option>
+              <option value="❓">❓</option>
+              <option value="😊">😊</option>
+              <option value="👍">👍</option>
+              <option value="💙">💙</option>
+              <option value="❤️">❤️</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆內文：</label>
+            <textarea id="newReplyText" class="modal-textarea" style="height:100px;" placeholder="輸入完整回覆內容..."></textarea>
+          </div>
+          <button type="button" class="btn-primary-modal" style="width:100%; height:36px;" data-on-click="saveSingleReply()">
+            ➕ 儲存新增回覆
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 3: 現有列表管理 (可刪除) -->
+      <div class="modal-tab-content" id="tabContentList">
+        <div id="modalRepliesList" style="display:flex; flex-direction:column; gap:6px; max-height:280px; overflow-y:auto;">
+          <!-- 動態渲染清單與刪除按鈕 -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 單筆編輯 Modal (Requirement 4: 編輯文字內容) -->
+  <div class="modal-backdrop" id="editModal" data-on-click="closeEditModalOnBg(event)">
+    <div class="modal-box">
+      <div class="modal-top">
+        <span class="modal-title">✏️ 編輯回覆內容</span>
+        <button type="button" class="btn-modal-close" data-on-click="closeEditModal()">✕</button>
+      </div>
+      <input type="hidden" id="editReplyId">
+      <div style="display:flex; flex-direction:column; gap:9px;">
+        <div>
+          <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆標題：</label>
+          <input type="text" id="editReplyTitle" class="modal-input" placeholder="例如：玉山銀行匯款帳號">
+        </div>
+        <div>
+          <label style="font-size:11.5px; font-weight:700; color:#334155;">類別標籤：</label>
+          <select id="editReplyCat" class="modal-input" style="font-size:14px;">
+            <option value="💐">💐</option>
+            <option value="🌹">🌹</option>
+            <option value="🎂">🎂</option>
+            <option value="🍔">🍔</option>
+            <option value="🔥">🔥</option>
+            <option value="🚗">🚗</option>
+            <option value="⭐️">⭐️</option>
+            <option value="‼️">‼️</option>
+            <option value="❓">❓</option>
+            <option value="😊">😊</option>
+            <option value="👍">👍</option>
+            <option value="💙">💙</option>
+            <option value="❤️">❤️</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11.5px; font-weight:700; color:#334155;">回覆文字內容：</label>
+          <textarea id="editReplyText" class="modal-textarea" style="height:120px;" placeholder="輸入回覆內容..."></textarea>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+          <button type="button" class="btn-reset-data" data-on-click="closeEditModal()">取消</button>
+          <button type="button" class="btn-primary-modal" data-on-click="saveEditReply()">💾 儲存修改</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 移動欄位與換頁數 Modal (長按3秒觸發) -->
+  <div class="modal-backdrop" id="moveModal" data-on-click="closeMoveModalOnBg(event)">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-top">
+        <span class="modal-title">📍 移動欄位與更換頁數</span>
+        <button type="button" class="btn-modal-close" data-on-click="closeMoveModal()">✕</button>
+      </div>
+
+      <!-- 正在移動的項目提示 -->
+      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; padding:9px 12px; margin-bottom:12px;">
+        <div style="font-size:11px; color:#64748b; margin-bottom:3px;">選取的回覆項目：</div>
+        <div id="moveItemPreview" style="font-size:13.5px; font-weight:800; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <!-- 項目標題 -->
+        </div>
+        <div style="font-size:11.5px; color:#0284c7; font-weight:700; margin-top:3px; display:flex; align-items:center; gap:4px;">
+          <span>📌 目前位置：</span>
+          <span id="moveSourceLocation" style="background:#e0f2fe; padding:1px 6px; border-radius:4px;">第 1 頁 - 欄位 #1</span>
+        </div>
+      </div>
+
+      <!-- 1. 本頁快速微調順序 -->
+      <div style="margin-bottom:14px; background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:9px 11px;">
+        <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">⚡ 本頁快速微調順序：</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:5px;">
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" data-on-click="moveSlotRelative(-1)">⬆️ 上移</button>
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" data-on-click="moveSlotRelative(1)">⬇️ 下移</button>
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" data-on-click="moveSlotToExtremes('top')">🔝 移到最前</button>
+          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" data-on-click="moveSlotToExtremes('bottom')">🔚 移到最後</button>
+        </div>
+      </div>
+
+      <!-- 2. 指定移動至其他頁數或欄位 -->
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:9px 11px;">
+        <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">🚀 指定跨頁／換欄位：</div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:600; color:#64748b; display:block; margin-bottom:3px;">目標頁數 (1~10)：</label>
+            <select id="targetPageSelect" class="modal-input" style="height:32px; font-size:12.5px;" data-on-change="updateTargetSlotOptions()">
+              <!-- 由 JS 動態生成 1 ~ 10 頁 -->
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:11px; font-weight:600; color:#64748b; display:block; margin-bottom:3px;">目標欄位 (#1~#10)：</label>
+            <select id="targetSlotSelect" class="modal-input" style="height:32px; font-size:12px;">
+              <!-- 由 JS 動態生成 1 ~ 10 格及該格預覽 -->
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-primary-modal" style="flex:1; justify-content:center; height:36px;" data-on-click="executeMove('swap')">
+            🔄 與目標互換
+          </button>
+          <button type="button" class="btn-primary-modal" style="flex:1; justify-content:center; height:36px; background:#0284c7;" data-on-click="executeMove('insert')">
+            📥 插入此位置
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮動提示 Toast -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">已複製！請直接貼到官方 LINE 對話框</span>
+  </div>
+
+  <script src="events.js"></script>
+  <script src="paste.js"></script>
+  <script src="window-mode.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

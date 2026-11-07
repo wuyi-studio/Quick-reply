@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "梧藝客服小幫手",
+  "short_name": "梧藝客服",
+  "version": "1.0.6",
+  "description": "在 Chrome 右側邊欄使用梧藝常用回覆與報價小幫手，一鍵把文字貼進 LINE 官方帳號網頁版對話框（不會自動傳送）。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "開啟梧藝客服小幫手",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "sidePanel",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://chat.line.biz/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.line.biz/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ]
+}

@@ -1388,6 +1388,8 @@
 
       const targetP = parseInt(pageSelect.value, 10) || movingPage;
       const page = pagesData[targetP] || [];
+      const slotLabel = document.getElementById('targetSlotLabel');
+      if (slotLabel) slotLabel.textContent = `目標欄位（#1~#${page.length || 0}）：`;
       let html = '';
       for (let s = 0; s < page.length; s++) {
         const item = page[s];

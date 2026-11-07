@@ -1591,6 +1591,8 @@
         `<button type="button" class="cat-pill" draggable="true" data-category-index="${index}" data-on-click="onCategoryPillClick('${cat}', this)" data-on-keydown="onCategoryKeyDown(event)" data-on-dragstart="startCategoryDrag(event, ${index})" data-on-drop="dropCategory(event, ${index})" data-on-dragover="allowCategoryDrag(event)">${cat}</button>`
       ).join('');
       host.innerHTML = all + rest;
+      renderCategorySelect(document.getElementById('newReplyCat'), document.getElementById('newReplyCat')?.value || categoryOrder[0]);
+      renderCategorySelect(document.getElementById('editReplyCat'), document.getElementById('editReplyCat')?.value || categoryOrder[0]);
       const editor = document.getElementById('categoryOrderEditor');
       if (editor) {
         editor.innerHTML = categoryOrder.map((cat, index) =>

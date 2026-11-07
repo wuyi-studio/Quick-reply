@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "梧藝客服小幫手",
   "short_name": "梧藝客服",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "在 Chrome 右側邊欄使用梧藝常用回覆與報價小幫手，一鍵把文字貼進 LINE 官方帳號網頁版對話框（不會自動傳送）。",
   "icons": {
     "16": "icons/icon16.png",

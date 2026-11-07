@@ -165,3 +165,37 @@ test('candle button and custom addon share the real quote total', () => {
   assert.equal(ctx.document.getElementById('btnC30').textContent, '數字蠟燭 $30');
   assert.equal(ctx.document.getElementById('customAddonName').value, '');
 });
+
+test('one boot keeps move, hidden slots, category order, and blocked quote together', () => {
+  const page = Array(21).fill(null);
+  page[0] = { id: 't1', category: '💐', title: '合成甲', text: '合成內文甲' };
+  page[12] = { id: 'hid', category: '🎂', title: '合成藏', text: '合成內文藏' };
+  const ctx = boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({ '1': page })
+    }
+  });
+  ctx.renderReplies();
+  const html = ctx.document.getElementById('repliesContainer').innerHTML;
+  assert.match(html, /openMoveFromCard\(event, 1, 0\)/);
+  const card = new ctx.__Element('div');
+  const button = new ctx.__Element('button');
+  button.setAttribute('data-on-click', 'openMoveFromCard(event, 1, 0)');
+  const span = new ctx.__Element('span');
+  button.appendChild(span);
+  card.appendChild(button);
+  click(ctx, span);
+  assert.equal(ctx.__pasteLog.length, 0);
+  ctx.setVisibleSlotsFromUi(20);
+  assert.match(ctx.document.getElementById('repliesContainer').innerHTML, /合成藏/);
+  ctx.renderCategoryPills();
+  const pills = ctx.document.getElementById('categoryPills').innerHTML;
+  assert.equal(ctx.document.getElementById('newReplyCat').innerHTML, ctx.document.getElementById('editReplyCat').innerHTML);
+  assert.match(pills, /data-category-index="0"/);
+  ctx.document.getElementById('customAddonName').value = '合成蠟燭';
+  ctx.document.getElementById('customAddonAmount').value = '1.5';
+  ctx.onCustomAddonInput();
+  ctx.pasteQuoteText();
+  assert.equal(ctx.__pasteLog.length, 0);
+});

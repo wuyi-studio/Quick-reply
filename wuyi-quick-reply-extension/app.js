@@ -847,17 +847,17 @@
       const container = document.getElementById('tenSlotsContainer');
       if (!container) return;
 
-      const catOptions = WuyiModel.categoryOptions(categoryOrder, '').map(e => ({ value: e, label: e }));
-
-      const currentSlots = pagesData[modalPage];
+      const currentSlots = pagesData[modalPage] || [];
       let html = '';
 
-      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+      for (let i = 0; i < WuyiModel.MAX_STORED_SLOTS; i++) {
         const item = currentSlots[i] || { title: '', category: '⭐️', text: '' };
+        const catOptions = WuyiModel.categoryOptions(categoryOrder, item.category).map(e => ({ value: e, label: e }));
+        const hiddenLabel = i >= visibleSlots ? ' 未顯示' : '';
         html += `
           <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:7px 9px; display:flex; flex-direction:column; gap:4px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:11.5px; font-weight:700; color:#1e293b;">📌 欄位 #${i + 1} (頁碼 P${modalPage})</span>
+              <span style="font-size:11.5px; font-weight:700; color:#1e293b;">📌 欄位 #${i + 1} (頁碼 P${modalPage})${hiddenLabel}</span>
               <select id="slotCat_${i}" class="modal-input" style="width:auto; height:24px; padding:0 6px; font-size:11px;">
                 ${catOptions.map(opt => `<option value="${opt.value}" ${item.category === opt.value ? 'selected' : ''}>${opt.label}</option>`).join('')}
               </select>
@@ -872,39 +872,30 @@
     }
 
     function saveCurrentModalPageSlots() {
-      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+      const forms = [];
+      for (let i = 0; i < WuyiModel.MAX_STORED_SLOTS; i++) {
         const titleEl = document.getElementById(`slotTitle_${i}`);
         const catEl = document.getElementById(`slotCat_${i}`);
         const textEl = document.getElementById(`slotText_${i}`);
-
-        if (titleEl && textEl) {
-          const title = titleEl.value.trim();
-          const text = textEl.value.trim();
-          const cat = catEl ? catEl.value : '⭐️';
-
-          if (title || text) {
-            pagesData[modalPage][i] = {
-              id: `slot_${modalPage}_${i}`,
-              category: cat,
-              title: title || `回覆 P${modalPage}-${i + 1}`,
-              text: text
-            };
-          } else {
-            pagesData[modalPage][i] = null;
-          }
-        }
+        forms.push({
+          title: titleEl ? titleEl.value : '',
+          text: textEl ? textEl.value : '',
+          category: catEl ? catEl.value : '⭐️'
+        });
       }
-
+      const committed = WuyiModel.commitBatchPage(pagesData, rawPages, modalPage, forms);
+      pagesData = committed.pages;
+      rawPages = committed.rawPages;
       savePagesDataToStorage();
       renderMainPageNav();
       renderReplies();
       closeManageModal();
-      showToast(`🎉 成功儲存第 ${modalPage} 頁的 10 個欄位！`);
+      showToast(`🎉 成功儲存第 ${modalPage} 頁的 20 個欄位！`);
     }
 
     function clearCurrentModalPageSlots() {
-      if (!confirm(`確定要清空第 ${modalPage} 頁的所有欄位嗎？`)) return;
-      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+      if (!confirm(`確定要清空第 ${modalPage} 頁畫面上的 20 格嗎？未顯示的格子也會在按下儲存後清空。索引 20 以後若有資料，不會動到。`)) return;
+      for (let i = 0; i < WuyiModel.MAX_STORED_SLOTS; i++) {
         const t = document.getElementById(`slotTitle_${i}`);
         const txt = document.getElementById(`slotText_${i}`);
         if (t) t.value = '';
@@ -924,38 +915,28 @@
         return;
       }
 
-      // 找尋第一個空位
-      let targetP = -1, targetS = -1;
-      for (let p = 1; p <= TOTAL_PAGES; p++) {
-        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
-          if (!pagesData[p][s]) {
-            targetP = p; targetS = s;
-            break;
-          }
-        }
-        if (targetP !== -1) break;
-      }
-
-      if (targetP === -1) {
-        showToast('全部 100 個欄位皆已滿！請先編輯或清空部分欄位', '⚠️');
+      const found = WuyiModel.findEmptySlot(pagesData, visibleSlots, rawPages);
+      if (!found) {
+        showToast('沒有空格可放入，資料沒有變更。', '⚠️');
         return;
       }
 
-      pagesData[targetP][targetS] = {
-        id: `slot_${targetP}_${targetS}`,
+      pagesData[found.page][found.slot] = {
+        id: `slot_${found.page}_${found.slot}`,
         category: cat || '⭐️',
         title: title,
         text: text
       };
 
       savePagesDataToStorage();
-      currentPage = targetP;
+      currentPage = found.page;
       renderMainPageNav();
       renderReplies();
       closeManageModal();
       document.getElementById('newReplyTitle').value = '';
       document.getElementById('newReplyText').value = '';
-      showToast(`✅ 已自動存入第 ${targetP} 頁 - 欄位 #${targetS + 1}！`);
+      if (found.hidden) showToast(`已存入第 ${found.page} 頁第 ${found.slot + 1} 格。此格目前未顯示，改選較多格即可看到。`);
+      else showToast(`✅ 已自動存入第 ${found.page} 頁 - 欄位 #${found.slot + 1}！`);
     }
 
     function renderModalList() {

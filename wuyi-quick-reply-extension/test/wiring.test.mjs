@@ -117,3 +117,25 @@ test('category alt-left reorders pills and both dropdowns', () => {
   assert.match(ctx.document.getElementById('editReplyCat').innerHTML, new RegExp(first));
   assert.equal(ctx.localStorage.getItem('wuyi_category_order') !== null, true);
 });
+
+test('batch editor shows 20 rows and single add prefers a visible hole', () => {
+  const page = Array(20).fill(null).map(() => ({ id: 'full', category: '💐', title: '合成滿', text: '滿' }));
+  page[3] = null;
+  const ctx = boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({ '1': page, '2': { kept: true } })
+    }
+  });
+  ctx.renderModalTenSlots();
+  const editor = ctx.document.getElementById('tenSlotsContainer').innerHTML;
+  assert.equal((editor.match(/欄位 #/g) || []).length, 20);
+  assert.match(editor, /未顯示/);
+  ctx.document.getElementById('newReplyTitle').value = '合成新';
+  ctx.document.getElementById('newReplyText').value = '新內文';
+  ctx.document.getElementById('newReplyCat').value = '💐';
+  ctx.saveSingleReply();
+  const stored = JSON.parse(ctx.localStorage.getItem('wuyi_100_pages_data'));
+  assert.equal(stored['1'][3].title, '合成新');
+  assert.deepEqual(stored['2'], { kept: true });
+});

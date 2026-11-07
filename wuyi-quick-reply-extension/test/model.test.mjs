@@ -212,3 +212,23 @@ test('batch save keeps unknown fields and the tail past index 19', () => {
   assert.equal(next[1], null);
   assert.equal(next[20].id, 'tail');
 });
+
+test('category drag inserts and alt-left swaps the following item', () => {
+  const order = M.DEFAULT_CATEGORY_ORDER.slice();
+  const dragged = M.moveCategory(order, 0, 2);
+  assert.deepEqual(dragged.slice(0, 3), [order[1], order[2], order[0]]);
+  assert.deepEqual(dragged.slice(3), order.slice(3));
+  const swapped = M.swapCategoryNeighbor(dragged, 3, -1);
+  assert.equal(swapped[2], dragged[3]);
+  assert.equal(swapped[3], dragged[2]);
+  const replies = [{ category: order[0] }];
+  assert.equal(replies[0].category, order[0]);
+});
+
+test('unknown category is appended for one dropdown only', () => {
+  const options = M.categoryOptions(M.DEFAULT_CATEGORY_ORDER, '合成類');
+  assert.equal(options.at(-1), '合成類');
+  assert.equal(M.DEFAULT_CATEGORY_ORDER.length, 13);
+  assert.equal(M.parseCategoryOrder('["💐"]')[0], M.DEFAULT_CATEGORY_ORDER[0]);
+  assert.equal(M.parseCategoryOrder('["💐"]').length, 13);
+});

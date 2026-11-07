@@ -326,12 +326,44 @@
     return { ok: true, pages: { ...before, [srcKey]: src, [dstKey]: finalDst }, toasts };
   }
 
+  function moveCategory(order, from, to) {
+    const next = order.slice();
+    const moved = next.splice(from, 1)[0];
+    next.splice(to, 0, moved);
+    return next;
+  }
+
+  function swapCategoryNeighbor(order, index, direction) {
+    const target = index + direction;
+    if (target < 0 || target >= order.length) return order.slice();
+    const next = order.slice();
+    const tmp = next[index];
+    next[index] = next[target];
+    next[target] = tmp;
+    return next;
+  }
+
+  function parseCategoryOrder(stored) {
+    try {
+      const parsed = JSON.parse(stored || 'null');
+      if (isCategoryPermutation(parsed)) return parsed.slice();
+    } catch (e) {}
+    return DEFAULT_CATEGORY_ORDER.slice();
+  }
+
+  function categoryOptions(order, current) {
+    const options = order.slice();
+    if (current && !options.includes(current)) options.push(current);
+    return options;
+  }
+
   return {
     PAGE_COUNT, MAX_STORED_SLOTS, DEFAULT_VISIBLE,
     padPage, normalizePages, serializePagesForStorage, pagesFromFlatList,
     parseVisibleSlots, hiddenNotice, pageAriaLabel, pageHasHidden, rawPageNotice,
     moveRelative, moveExtreme, swapSlots, insertSlot,
     DEFAULT_CATEGORY_ORDER, isCategoryPermutation, exportBackup, importBackup,
-    applyBatchSlot, applyBatchPage, commitBatchPage, findEmptySlot
+    applyBatchSlot, applyBatchPage, commitBatchPage, findEmptySlot,
+    moveCategory, swapCategoryNeighbor, parseCategoryOrder, categoryOptions
   };
 });

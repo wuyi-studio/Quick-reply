@@ -64,6 +64,7 @@ export function boot(options = {}) {
       }
       return elements.get(id);
     },
+    querySelector() { return null; },
     querySelectorAll() { return []; },
     addEventListener(type, fn) { (listeners[type] ||= []).push(fn); },
     createElement(tag) { return new Element(tag); },

@@ -558,42 +558,36 @@
       }
     }
 
-    function buildReplyCardHtml(item, pageNum, slotIdx) {
+    function buildReplyCardHtml(item, pageNum, slotIdx, hidden) {
       const emoji = item.category || '⭐️';
       const titleText = escapeHtml(item.title || '常用回覆');
-      // 只要標題含有 emoji 就不重複加，否則前面帶上該類別的 emoji
       const displayTitle = (item.title && /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}]/u.test(item.title))
         ? titleText
         : `<span class="reply-emoji-tag">${emoji}</span> ${titleText}`;
+      const dragAttrs = hidden ? 'draggable="false"' : `draggable="true"
+             data-on-dragstart="handleDragStart(event, ${pageNum}, ${slotIdx})"
+             data-on-dragover="handleDragOver(event)"
+             data-on-dragleave="handleDragLeave(event)"
+             data-on-drop="handleDrop(event, ${pageNum}, ${slotIdx})"`;
+      const hiddenMark = hidden ? `<span class="hidden-slot-badge">未顯示</span> 第 ${pageNum} 頁第 ${slotIdx + 1} 格` : '';
 
       return `
         <div class="reply-card"
              id="replyCard_${pageNum}_${slotIdx}"
              data-page="${pageNum}"
              data-slot="${slotIdx}"
-             title="點一下貼進 LINE 對話框&#10;（長按 3 秒可移動欄位／換頁；也可拖曳換位）"
+             title="點一下貼進 LINE 對話框（「移動」可換頁或換格；也可拖曳換位）"
              data-on-click="handleCardClick(event, ${pageNum}, ${slotIdx})"
-             data-on-mousedown="startLongPress(event, ${pageNum}, ${slotIdx})"
-             data-on-mouseup="cancelLongPress()"
-             data-on-mouseleave="cancelLongPress()"
-             data-on-touchstart="handleTouchStart(event, ${pageNum}, ${slotIdx})"
-             data-on-touchmove="handleTouchMove(event)"
-             data-on-touchend="cancelLongPress()"
-             data-on-touchcancel="cancelLongPress()"
-             draggable="true"
-             data-on-dragstart="handleDragStart(event, ${pageNum}, ${slotIdx})"
-             data-on-dragover="handleDragOver(event)"
-             data-on-dragleave="handleDragLeave(event)"
-             data-on-drop="handleDrop(event, ${pageNum}, ${slotIdx})">
+             ${dragAttrs}>
           <div class="reply-card-left">
             <span class="reply-card-title">${displayTitle}</span>
+            ${hiddenMark}
           </div>
           <div class="reply-card-right">
-            <!-- 編輯按鈕 -->
+            <button type="button" class="btn-card-move" data-on-click="openMoveFromCard(event, ${pageNum}, ${slotIdx})" aria-label="移動欄位與更換頁數"><span>移動</span></button>
             <button type="button" class="btn-card-edit" data-on-click="openEditModal(${pageNum}, ${slotIdx})" title="編輯文字內容">
               <span>✏️</span>
             </button>
-            <!-- 複製按鈕 (防閃退安全複製) -->
             <button type="button" class="btn-main-copy" id="btnCopy_${item.id || (pageNum + '_' + slotIdx)}" data-on-click="copyTextDirect(this, \`${encodeURIComponent(item.text)}\`)" title="複製" aria-label="複製">
               <span>📋</span>
             </button>
@@ -1295,11 +1289,7 @@
       setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    // ================= 長按 3 秒移動欄位 / 換頁數 ＆ 拖曳排序 =================
-    let longPressTimer = null;
-    let longPressCard = null;
-    let touchStartX = 0;
-    let touchStartY = 0;
+    // ================= 移動欄位 / 換頁數 ＆ 拖曳排序 =================
     let movingPage = 1;
     let movingSlot = 0;
     let draggedCoord = null;
@@ -1335,54 +1325,48 @@
       });
     }
 
-    function startLongPress(e, pageNum, slotIdx) {
-      if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('textarea')) {
+    function ancestorTagsFromEvent(event) {
+      const tags = [];
+      let node = event && event.target;
+      while (node && node.tagName) {
+        tags.push(node.tagName);
+        node = node.parentElement;
+      }
+      return tags;
+    }
+
+    function openMoveFromCard(event, page, slot) {
+      if (event) event.cancelBubble = true;
+      openMoveModal(page, slot);
+    }
+
+    function refreshMoveButtons() {
+      const disabled = movingSlot >= visibleSlots;
+      ['moveUp', 'moveDown', 'moveTop', 'moveBottom'].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.disabled = disabled;
+      });
+      const hint = document.getElementById('moveHiddenHint');
+      if (hint) hint.textContent = disabled ? '此格目前未顯示。請用下方的目標格，或先把每頁格數調大。' : '';
+    }
+
+    function applyMoveResult(result, nextSlot) {
+      if (!result || result.disabled || result.ok === false) {
+        if (result && result.toast) showToast(result.toast, '⚠️');
+        if (result && result.toasts) result.toasts.forEach(toast => showToast(toast, '⚠️'));
+        refreshMoveButtons();
         return;
       }
-
-      cancelLongPress();
-      longPressCard = { page: pageNum, slot: slotIdx };
-
-      const cardEl = document.getElementById(`replyCard_${pageNum}_${slotIdx}`);
-      if (cardEl) {
-        cardEl.classList.add('pressing');
-      }
-
-      // 3秒 (3000ms) 長按計時
-      longPressTimer = setTimeout(() => {
-        cancelLongPress();
-        cardClickSuppressed = true;
-        if (navigator.vibrate) {
-          try { navigator.vibrate([60, 50, 60]); } catch (err) {}
-        }
-        openMoveModal(pageNum, slotIdx);
-      }, 3000);
-    }
-
-    function cancelLongPress() {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-      document.querySelectorAll('.reply-card.pressing').forEach(el => el.classList.remove('pressing'));
-    }
-
-    function handleTouchStart(e, pageNum, slotIdx) {
-      if (e.touches && e.touches[0]) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      }
-      startLongPress(e, pageNum, slotIdx);
-    }
-
-    function handleTouchMove(e) {
-      if (!longPressTimer) return;
-      if (e.touches && e.touches[0]) {
-        const dist = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
-        if (dist > 14) {
-          cancelLongPress();
-        }
-      }
+      if (result.page) pagesData[movingPage] = result.page;
+      if (result.pages) pagesData = result.pages;
+      if (Number.isInteger(nextSlot)) movingSlot = nextSlot;
+      else if (Number.isInteger(result.index)) movingSlot = result.index;
+      savePagesDataToStorage();
+      renderMainPageNav();
+      renderReplies();
+      openMoveModal(movingPage, movingSlot);
+      const toasts = result.toasts || (result.toast ? [result.toast] : []);
+      toasts.forEach(toast => showToast(toast));
     }
 
     // 移動與換頁 Modal 控制
@@ -1411,7 +1395,9 @@
           html += `<option value="${i}" ${i === p ? 'selected' : ''}>第 ${i} 頁</option>`;
         }
         pageSelect.innerHTML = html;
+        pageSelect.value = String(p);
       }
+      refreshMoveButtons();
 
       updateTargetSlotOptions();
       document.getElementById('moveModal')?.classList.add('show');
@@ -1422,18 +1408,20 @@
       const slotSelect = document.getElementById('targetSlotSelect');
       if (!pageSelect || !slotSelect) return;
 
-      const targetP = parseInt(pageSelect.value, 10);
+      const targetP = parseInt(pageSelect.value, 10) || movingPage;
+      const page = pagesData[targetP] || [];
       let html = '';
-      for (let s = 0; s < SLOTS_PER_PAGE; s++) {
-        const item = pagesData[targetP]?.[s];
+      for (let s = 0; s < page.length; s++) {
+        const item = page[s];
         let desc = '(空欄位)';
         if (item && item.title) {
           desc = `${item.category || ''} ${item.title}`;
           if (desc.length > 15) desc = desc.slice(0, 15) + '...';
         }
+        const hiddenMark = s >= visibleSlots ? '未顯示' : '';
         const isCurrent = (targetP === movingPage && s === movingSlot);
         html += `<option value="${s}" ${s === movingSlot && targetP !== movingPage ? 'selected' : ''}>
-          #${s + 1} ${escapeHtml(desc)} ${isCurrent ? '👈 目前' : ''}
+          #${s + 1} ${escapeHtml(desc)} ${hiddenMark} ${isCurrent ? '👈 目前' : ''}
         </option>`;
       }
       slotSelect.innerHTML = html;
@@ -1449,86 +1437,44 @@
 
     // 快捷相對微調順序
     function moveSlotRelative(direction) {
-      const targetSlot = movingSlot + direction;
-      if (targetSlot < 0 || targetSlot >= SLOTS_PER_PAGE) {
-        showToast(direction < 0 ? '已經在最上方了！' : '已經在最下方了！', '⚠️');
-        return;
-      }
-
-      const temp = pagesData[movingPage][targetSlot];
-      pagesData[movingPage][targetSlot] = pagesData[movingPage][movingSlot];
-      pagesData[movingPage][movingSlot] = temp;
-
-      savePagesDataToStorage();
-      movingSlot = targetSlot;
-      renderMainPageNav();
-      renderReplies();
-      openMoveModal(movingPage, movingSlot);
-      showToast(`已移動至第 ${movingSlot + 1} 格！`);
+      applyMoveResult(WuyiModel.moveRelative(pagesData[movingPage], movingSlot, direction, visibleSlots));
     }
 
     function moveSlotToExtremes(pos) {
-      const targetSlot = (pos === 'top') ? 0 : (SLOTS_PER_PAGE - 1);
-      if (targetSlot === movingSlot) {
-        showToast(pos === 'top' ? '已經在最前格了！' : '已經在最後格了！', '⚠️');
-        return;
-      }
-
-      const item = pagesData[movingPage].splice(movingSlot, 1)[0];
-      if (pos === 'top') {
-        pagesData[movingPage].unshift(item);
-      } else {
-        pagesData[movingPage].push(item);
-      }
-
-      savePagesDataToStorage();
-      movingSlot = targetSlot;
-      renderMainPageNav();
-      renderReplies();
-      openMoveModal(movingPage, movingSlot);
-      showToast(pos === 'top' ? '已移到最前格！' : '已移到最後格！');
+      applyMoveResult(WuyiModel.moveExtreme(pagesData[movingPage], movingSlot, pos, visibleSlots));
     }
 
-    // 指定跨頁/跨格移動 (互換 或 插入)
     function executeMove(action) {
       const targetPage = parseInt(document.getElementById('targetPageSelect').value, 10);
       const targetSlot = parseInt(document.getElementById('targetSlotSelect').value, 10);
-
       if (targetPage === movingPage && targetSlot === movingSlot) {
         showToast('目標位置與目前位置相同！', '⚠️');
         return;
       }
-
-      const srcItem = pagesData[movingPage][movingSlot];
-
-      if (action === 'swap') {
-        const destItem = pagesData[targetPage][targetSlot];
-        pagesData[targetPage][targetSlot] = srcItem;
-        pagesData[movingPage][movingSlot] = destItem;
-      } else if (action === 'insert') {
-        if (targetPage === movingPage) {
-          pagesData[movingPage].splice(movingSlot, 1);
-          pagesData[movingPage].splice(targetSlot, 0, srcItem);
-        } else {
-          pagesData[movingPage][movingSlot] = null;
-          pagesData[targetPage].splice(targetSlot, 0, srcItem);
-          pagesData[targetPage].length = SLOTS_PER_PAGE;
-        }
+      const result = action === 'insert'
+        ? WuyiModel.insertSlot(pagesData, movingPage, movingSlot, targetPage, targetSlot, visibleSlots)
+        : WuyiModel.swapSlots(pagesData, movingPage, movingSlot, targetPage, targetSlot, visibleSlots);
+      if (!result.ok) {
+        result.toasts.forEach(toast => showToast(toast, '⚠️'));
+        return;
       }
-
+      pagesData = result.pages;
       savePagesDataToStorage();
       currentPage = targetPage;
       renderMainPageNav();
       renderReplies();
       closeMoveModal();
-      showToast(`🎉 成功移動至第 ${targetPage} 頁 - 欄位 #${targetSlot + 1}！`);
+      result.toasts.forEach(toast => showToast(toast));
     }
 
-    // HTML5 滑鼠拖曳排序
     function handleDragStart(e, pageNum, slotIdx) {
+      if (!WuyiModel.shouldStartCardDrag(ancestorTagsFromEvent(e))) {
+        e.preventDefault();
+        return;
+      }
       cardClickSuppressed = true;
       draggedCoord = { page: pageNum, slot: slotIdx };
-      e.dataTransfer.effectAllowed = 'move';
+      if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
       const card = document.getElementById(`replyCard_${pageNum}_${slotIdx}`);
       card?.classList.add('dragging');
     }

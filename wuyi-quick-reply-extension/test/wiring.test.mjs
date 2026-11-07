@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { boot } from './harness.mjs';
+import { boot, click } from './harness.mjs';
 
 test('harness renders a synthetic card through the real builder', () => {
   const ctx = boot({
@@ -37,4 +37,56 @@ test('slot control renders 10 cards and keeps a hidden item when switched', () =
   assert.equal(again.includes('replyCard_1_20'), false);
   assert.match(again, /此頁有 1 則在目前未顯示的格子（21）/);
   assert.equal(ctx.localStorage.getItem('wuyi_slots_per_page'), '20');
+});
+
+function cardContext() {
+  const page = Array(20).fill(null);
+  page[0] = { id: 't1', category: '💐', title: '合成甲', text: '合成內文甲' };
+  return boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({ '1': page })
+    }
+  });
+}
+
+test('move, edit, and copy buttons do not paste; card body pastes once', () => {
+  const ctx = cardContext();
+  ctx.renderReplies();
+  const html = ctx.document.getElementById('repliesContainer').innerHTML;
+  assert.match(html, /data-on-click="openMoveFromCard\(event, 1, 0\)"/);
+  assert.match(html, />移動</);
+  assert.equal(html.includes('startLongPress'), false);
+  assert.equal(html.includes('3000'), false);
+  const card = new ctx.__Element('div');
+  card.setAttribute('data-on-click', 'handleCardClick(event, 1, 0)');
+  const button = new ctx.__Element('button');
+  button.setAttribute('data-on-click', 'openMoveFromCard(event, 1, 0)');
+  const span = new ctx.__Element('span');
+  button.appendChild(span);
+  card.appendChild(button);
+  click(ctx, span);
+  assert.equal(ctx.__pasteLog.length, 0);
+  assert.equal(ctx.document.getElementById('moveModal').classList.contains('show'), true);
+  const title = new ctx.__Element('span');
+  card.appendChild(title);
+  click(ctx, title);
+  assert.equal(ctx.__pasteLog.length, 1);
+});
+
+test('search shows a hidden card with its slot label', () => {
+  const page = Array(20).fill(null);
+  page[12] = { id: 'hid', category: '🎂', title: '合成藏', text: '合成內文藏' };
+  const ctx = boot({
+    storage: {
+      wuyi_defaults_version: '1.0.2-003851d4',
+      wuyi_100_pages_data: JSON.stringify({ '1': page })
+    }
+  });
+  ctx.document.getElementById('searchInput').value = '合成藏';
+  ctx.filterReplies();
+  const filtered = ctx.document.getElementById('repliesContainer').innerHTML;
+  assert.match(filtered, /未顯示/);
+  assert.match(filtered, /第 1 頁第 13 格/);
+  assert.equal(filtered.includes('draggable="true"'), false);
 });

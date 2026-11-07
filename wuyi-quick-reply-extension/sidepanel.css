@@ -719,22 +719,6 @@
       transform: scale(0.985);
     }
 
-    .reply-card.pressing::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      height: 3.5px;
-      background: linear-gradient(90deg, var(--primary), #8b5cf6);
-      width: 0%;
-      animation: longPressBar 3s linear forwards;
-    }
-
-    @keyframes longPressBar {
-      0% { width: 0%; }
-      100% { width: 100%; }
-    }
-
     .reply-card.dragging {
       opacity: 0.45;
       border: 1.5px dashed var(--primary);

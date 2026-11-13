@@ -280,8 +280,9 @@
     body.mode-bottom .btn-main-copy,
     body.mode-bottom .btn-card-send {
       height: 21px;
-      padding: 0 5px;
-      font-size: 10px;
+      min-width: 21px;
+      padding: 0 3px;
+      font-size: 10.5px;
       border-radius: 4px;
     }
 
@@ -343,9 +344,36 @@
       padding: 0 4px;
     }
     body.mode-bottom .addon-grid-wrapper {
-      grid-template-columns: repeat(6, 1fr) !important;
+      grid-template-columns: repeat(7, 1fr) !important;
       gap: 3px !important;
       margin-bottom: 3px !important;
+    }
+    body.mode-bottom .reply-cards-list.slots-10 {
+      grid-template-columns: 1fr 1fr;
+    }
+    body.mode-bottom .reply-cards-list.slots-15 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    body.mode-bottom .reply-cards-list.slots-20 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    body.mode-bottom .btn-slot-option {
+      height: 20px;
+      padding: 0 4px;
+      font-size: 9.5px;
+    }
+    body.mode-bottom .custom-addon-row {
+      margin-bottom: 3px;
+      padding: 2px 6px;
+      gap: 4px;
+    }
+    body.mode-bottom .custom-addon-label {
+      font-size: 10px;
+    }
+    body.mode-bottom .custom-addon-name-input,
+    body.mode-bottom .custom-addon-price-input {
+      height: 20px;
+      font-size: 10.5px;
     }
     body.mode-bottom .btn-addon-cycle {
       height: 23px;
@@ -556,13 +584,78 @@
       transform: scale(1.08);
     }
 
-    /* 10 頁導航切換條 (極簡單行) */
+    .cat-pill.cat-dragging {
+      opacity: 0.35;
+      transform: scale(0.9);
+    }
+
+    .cat-pill.cat-drag-over {
+      border-color: var(--primary) !important;
+      background: var(--primary-light) !important;
+      transform: scale(1.15);
+    }
+
+    /* 10 頁導航切換條 ＆ 每頁欄位數 (10 / 15 / 20) */
     .page-nav-container {
       background: #ffffff;
       border: 1.2px solid var(--border);
       border-radius: var(--radius);
       padding: 3px 6px;
       box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .page-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .slots-selector-group {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border);
+      padding-left: 6px;
+    }
+
+    .slots-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    .btn-slot-option {
+      height: 22px;
+      padding: 0 5px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: #475569;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+
+    .btn-slot-option:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-slot-option.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
     }
 
     .page-pills-row {
@@ -712,28 +805,6 @@
     .reply-card:hover {
       border-color: var(--primary);
       box-shadow: 0 1px 4px rgba(6, 199, 85, 0.08);
-    }
-
-    .reply-card.pressing {
-      background: #f0fdf4 !important;
-      border-color: var(--primary) !important;
-      transform: scale(0.985);
-    }
-
-    .reply-card.pressing::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      height: 3.5px;
-      background: linear-gradient(90deg, var(--primary), #8b5cf6);
-      width: 0%;
-      animation: longPressBar 3s linear forwards;
-    }
-
-    @keyframes longPressBar {
-      0% { width: 0%; }
-      100% { width: 100%; }
     }
 
     .reply-card.dragging {
@@ -1023,6 +1094,56 @@
       font-weight: 700;
     }
 
+    .custom-addon-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+      background: #ffffff;
+      border: 1.2px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+
+    .custom-addon-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .custom-addon-name-input {
+      flex: 1;
+      min-width: 0;
+      height: 26px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0 7px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .custom-addon-currency {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .custom-addon-price-input {
+      width: 70px;
+      height: 26px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0 6px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .custom-addon-name-input:focus,
+    .custom-addon-price-input:focus {
+      border-color: var(--primary);
+    }
+
     .quote-action-bar {
       display: flex;
       gap: 8px;
@@ -1306,31 +1427,24 @@
 
     <!-- 1. 常用回覆問題列表 (左欄 / 置頂) -->
     <section class="faq-section">
-      <!-- 搜尋與分類膠囊 (純 EMOJI) -->
+      <!-- 搜尋與分類膠囊 (可拖曳自由更換順序) -->
       <div class="search-filter-row">
         <input type="text" class="search-input-box" id="searchInput" placeholder="🔍 搜尋回覆關鍵字（如：匯款、蛋糕、花束、取貨、運費...）" oninput="filterReplies()">
-        <div class="category-pills">
-          <button type="button" class="cat-pill active" onclick="selectCategory('all', this)">🌟</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('💐', this)">💐</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('🌹', this)">🌹</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('🎂', this)">🎂</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('🍔', this)">🍔</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('🔥', this)">🔥</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('🚗', this)">🚗</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('⭐️', this)">⭐️</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('‼️', this)">‼️</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('❓', this)">❓</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('😊', this)">😊</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('👍', this)">👍</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('💙', this)">💙</button>
-          <button type="button" class="cat-pill" onclick="selectCategory('❤️', this)">❤️</button>
+        <div class="category-pills" id="categoryPillsContainer">
+          <!-- 由 JS 動態生成，支援滑鼠/觸控拖曳交換位置 -->
         </div>
       </div>
 
-      <!-- 10 頁切換列 (極簡單列) -->
+      <!-- 10 頁切換列 ＆ 每頁欄位數 (10 / 15 / 20) -->
       <div class="page-nav-container">
-        <div class="page-pills-row" id="mainPagePills">
+        <div class="page-nav-left" id="mainPagePills">
           <!-- ◀ 1 2 3 4 5 6 7 8 9 10 ▶ 由 JS 動態生成 -->
+        </div>
+        <div class="slots-selector-group" id="slotsSelectorGroup">
+          <span class="slots-label">每頁：</span>
+          <button type="button" class="btn-slot-option active" id="btnSlot10" onclick="setSlotsPerPage(10)" title="每頁顯示 10 欄位">10欄</button>
+          <button type="button" class="btn-slot-option" id="btnSlot15" onclick="setSlotsPerPage(15)" title="每頁顯示 15 欄位">15欄</button>
+          <button type="button" class="btn-slot-option" id="btnSlot20" onclick="setSlotsPerPage(20)" title="每頁顯示 20 欄位">20欄</button>
         </div>
       </div>
 
@@ -1392,14 +1506,23 @@
             </div>
           </div>
 
-          <!-- 加購配件循環按鈕 (按幾下乘幾次：靠下模式自動單列6顆，靠右模式雙列各3顆) -->
+          <!-- 加購配件循環按鈕 (按幾下乘幾次：靠下模式自動單列7顆，靠右模式多列平鋪) -->
           <div class="addon-grid-wrapper">
             <button type="button" class="btn-addon-cycle" id="btnU2" onclick="cycleAddon('u2', 15, '2人餐具')">2人餐具 +$15</button>
             <button type="button" class="btn-addon-cycle" id="btnU5" onclick="cycleAddon('u5', 30, '5人餐具')">5人餐具 +$30</button>
             <button type="button" class="btn-addon-cycle" id="btnU10" onclick="cycleAddon('u10', 50, '10人餐具')">10人餐具 +$50</button>
+            <button type="button" class="btn-addon-cycle" id="btnC30" onclick="cycleAddon('c30', 30, '數字蠟燭')">數字蠟燭 +$30</button>
             <button type="button" class="btn-addon-cycle" id="btnC45" onclick="cycleAddon('c45', 45, '蠟燭$45')">蠟燭 $45</button>
             <button type="button" class="btn-addon-cycle" id="btnC55" onclick="cycleAddon('c55', 55, '蠟燭$55')">蠟燭 $55</button>
             <button type="button" class="btn-addon-cycle" id="btnIce" onclick="toggleIceBag()">🧊保冰袋 +$100</button>
+          </div>
+
+          <!-- 自訂輸入加購欄位 (Requirement 4: 再多一個自己輸入的欄位) -->
+          <div class="custom-addon-row">
+            <span class="custom-addon-label">✍️ 其他加購：</span>
+            <input type="text" class="custom-addon-name-input" id="customAddonName" placeholder="加購品項名稱 (例：代寫卡片、造型插牌、保冷袋...)" oninput="onCustomAddonInput()">
+            <span class="custom-addon-currency">+$</span>
+            <input type="number" class="custom-addon-price-input" id="customAddonPrice" placeholder="金額" oninput="onCustomAddonInput()">
           </div>
 
           <!-- 操作按鈕 -->
@@ -1427,12 +1550,13 @@
 
       <!-- 分頁切換 -->
       <div class="modal-tab-bar">
-        <button type="button" class="modal-tab-btn active" id="tabBtnBatch" onclick="switchModalTab('batch')">📥 10 筆匯入設定</button>
+        <button type="button" class="modal-tab-btn active" id="tabBtnBatch" onclick="switchModalTab('batch')">📥 批次欄位設定</button>
+        <button type="button" class="modal-tab-btn" id="tabBtnSync" onclick="switchModalTab('sync')">⚡️ 一鍵同步 LINE 預設訊息</button>
         <button type="button" class="modal-tab-btn" id="tabBtnSingle" onclick="switchModalTab('single')">➕ 新增單筆</button>
         <button type="button" class="modal-tab-btn" id="tabBtnList" onclick="switchModalTab('list')">📝 現有回覆清單</button>
       </div>
 
-      <!-- Tab 1: 10 頁 x 10 欄位設定 -->
+      <!-- Tab 1: 每頁欄位設定 (根據 10 / 15 / 20 動態調整) -->
       <div class="modal-tab-content active" id="tabContentBatch">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#f8fafc; padding:6px 8px; border-radius:6px; border:1px solid var(--border);">
           <span style="font-size:12px; font-weight:700; color:#0f172a;">選擇管理頁數：</span>
@@ -1443,21 +1567,74 @@
 
         <div style="font-size:11.5px; color:#64748b; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
           <span>正在編輯：<b id="editingPageLabel" style="color:var(--primary-dark);">第 1 頁（欄位 #1 ~ #10）</b></span>
-          <button type="button" class="btn-reset-data" style="padding:1px 6px; font-size:10.5px;" onclick="clearCurrentModalPageSlots()">清空本頁 10 格</button>
+          <button type="button" class="btn-reset-data" style="padding:1px 6px; font-size:10.5px;" onclick="clearCurrentModalPageSlots()">清空本頁欄位</button>
         </div>
         
         <div id="tenSlotsContainer" style="display:flex; flex-direction:column; gap:8px; max-height:330px; overflow-y:auto; padding-right:4px;">
-          <!-- 10 個卡位由 JS 動態生成 -->
+          <!-- 卡位由 JS 動態生成 -->
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; border-top:1px solid var(--border); padding-top:8px; gap:6px; flex-wrap:wrap;">
-          <div style="display:flex; gap:4px;">
+          <div style="display:flex; gap:4px; flex-wrap:wrap;">
             <button type="button" class="btn-reset-data" onclick="exportBackupJson()" title="將所有編輯好的常用回覆下載為 JSON 備份檔">💾 備份下載</button>
             <button type="button" class="btn-reset-data" onclick="triggerImportJson()" title="還原上傳備份檔">📂 還原匯入</button>
             <input type="file" id="backupFileInput" accept=".json" style="display:none;" onchange="handleImportFile(event)">
             <button type="button" class="btn-reset-data" onclick="resetToDefaultReplies()">🔄 恢復官方</button>
+            <button type="button" class="btn-reset-data" style="background:#e8f9ee; color:#05a847; border-color:#86efac; font-weight:700;" onclick="switchModalTab('sync')" title="一鍵同步 LINE 官方預設訊息">⚡️ 同步LINE訊息</button>
           </div>
-          <button type="button" class="btn-primary-modal" onclick="saveCurrentModalPageSlots()">💾 儲存本頁 10 筆回覆</button>
+          <button type="button" class="btn-primary-modal" id="btnSaveModalSlots" onclick="saveCurrentModalPageSlots()">💾 儲存本頁回覆</button>
+        </div>
+      </div>
+
+      <!-- Tab 2: ⚡️ 一鍵同步 LINE 官方預設訊息 (智慧貼上解析 / 書籤工具) -->
+      <div class="modal-tab-content" id="tabContentSync">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="background:#e8f9ee; border:1px solid #a7f3d0; border-radius:8px; padding:7px 10px; font-size:11.5px; color:#065f46; line-height:1.45;">
+            <b>💡 LINE 官方訊息同步說明：</b><br>
+            因 LINE 伺服器安全性保護，外部系統無法直接在遠端背景登入讀取您的後台資料。小幫手為您提供 <b>2 種最快速、最安全的一鍵同步方式</b>：
+          </div>
+
+          <!-- 方式 1：智慧貼上解析 -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:9px; display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:#1e293b;">⚡️ 方式一：複製貼上 LINE 訊息（AI 智慧自動解析）</span>
+              <button type="button" class="btn-reset-data" onclick="loadSyncExample()" style="padding:2px 7px; font-size:10.5px;">載入範例格式</button>
+            </div>
+            <p style="font-size:11px; color:#64748b; margin:0;">
+              直接從 LINE OA 後台複製多筆訊息或文字貼在下方，小幫手會<b>自動辨識標題、自動配對 Emoji 分類、自動填入內文</b>：
+            </p>
+            <textarea id="lineSyncInput" class="modal-textarea" style="height:110px; font-size:11.5px; margin:0;" placeholder="請在此貼上 LINE 官方訊息文字...&#10;支援格式範例：&#10;【匯款帳號】&#10;您好，玉山銀行代號808...&#10;&#10;【鮮花存放及水分消耗說明】&#10;我們的花束常溫可放置3~5天..."></textarea>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-top:2px;">
+              <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:#334155;">
+                <label style="font-weight:700;">匯入方式：</label>
+                <select id="syncModeSelect" class="modal-input" style="width:auto; height:26px; padding:0 6px; font-size:11px;">
+                  <option value="append">依序填入空白欄位 (不覆蓋現有)</option>
+                  <option value="overwrite">從第 1 頁開始依序覆蓋</option>
+                  <option value="currentPage">從當前頁開始覆蓋</option>
+                </select>
+              </div>
+              <button type="button" class="btn-primary-modal" style="height:28px; padding:0 12px; font-size:11.5px;" onclick="executeSmartLineSync()">
+                ⚡️ 一鍵智慧解析並同步入庫
+              </button>
+            </div>
+          </div>
+
+          <!-- 方式 2：LINE 後台一鍵抓取小書籤 (Bookmarklet) -->
+          <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:9px; display:flex; flex-direction:column; gap:5px;">
+            <span style="font-size:12px; font-weight:700; color:#1e293b;">📌 方式二：LINE OA 後台「一鍵抓取書籤工具」</span>
+            <p style="font-size:11px; color:#64748b; margin:0; line-height:1.4;">
+              把下方按鈕拖曳到瀏覽器書籤列。在 LINE 官方後台（chat.line.biz）打開時點一下，即可瞬間將畫面上所有預設訊息打包複製！
+            </p>
+            <div style="display:flex; gap:6px; align-items:center; margin-top:2px;">
+              <a href="javascript:(function(){const items=[];document.querySelectorAll('[class*=\'canned\'],[class*=\'template\'],[role=\'listitem\'],tr').forEach(el=>{const t=el.innerText.trim();if(t&&t.length>4)items.push(t);});const text=items.join('\n---\n');navigator.clipboard.writeText(text).then(()=>alert('🎉 已複製 LINE 預設訊息！請回到梧藝小幫手貼上進行同步')).catch(()=>prompt('請複製以下內容：',text));})();" class="btn-slot-option active" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px; padding:3px 9px; font-size:11px; cursor:move;" title="將我拖曳到瀏覽器書籤列">
+                🔖 拖曳到書籤列：【梧藝一鍵抓取】
+              </a>
+              <button type="button" class="btn-reset-data" onclick="copyBookmarkletCode()" style="padding:3px 8px; font-size:10.5px;">
+                📋 複製抓取腳本代碼
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1549,67 +1726,6 @@
     </div>
   </div>
 
-  <!-- 移動欄位與換頁數 Modal (長按3秒觸發) -->
-  <div class="modal-backdrop" id="moveModal" onclick="closeMoveModalOnBg(event)">
-    <div class="modal-box" style="max-width: 440px;">
-      <div class="modal-top">
-        <span class="modal-title">📍 移動欄位與更換頁數</span>
-        <button type="button" class="btn-modal-close" onclick="closeMoveModal()">✕</button>
-      </div>
-
-      <!-- 正在移動的項目提示 -->
-      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:7px; padding:9px 12px; margin-bottom:12px;">
-        <div style="font-size:11px; color:#64748b; margin-bottom:3px;">選取的回覆項目：</div>
-        <div id="moveItemPreview" style="font-size:13.5px; font-weight:800; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          <!-- 項目標題 -->
-        </div>
-        <div style="font-size:11.5px; color:#0284c7; font-weight:700; margin-top:3px; display:flex; align-items:center; gap:4px;">
-          <span>📌 目前位置：</span>
-          <span id="moveSourceLocation" style="background:#e0f2fe; padding:1px 6px; border-radius:4px;">第 1 頁 - 欄位 #1</span>
-        </div>
-      </div>
-
-      <!-- 1. 本頁快速微調順序 -->
-      <div style="margin-bottom:14px; background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:9px 11px;">
-        <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">⚡ 本頁快速微調順序：</div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:5px;">
-          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotRelative(-1)">⬆️ 上移</button>
-          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotRelative(1)">⬇️ 下移</button>
-          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotToExtremes('top')">🔝 移到最前</button>
-          <button type="button" class="btn-reset-data" style="padding:6px 2px; font-size:11.5px; text-align:center;" onclick="moveSlotToExtremes('bottom')">🔚 移到最後</button>
-        </div>
-      </div>
-
-      <!-- 2. 指定移動至其他頁數或欄位 -->
-      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:7px; padding:9px 11px;">
-        <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">🚀 指定跨頁／換欄位：</div>
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-          <div style="flex:1;">
-            <label style="font-size:11px; font-weight:600; color:#64748b; display:block; margin-bottom:3px;">目標頁數 (1~10)：</label>
-            <select id="targetPageSelect" class="modal-input" style="height:32px; font-size:12.5px;" onchange="updateTargetSlotOptions()">
-              <!-- 由 JS 動態生成 1 ~ 10 頁 -->
-            </select>
-          </div>
-          <div style="flex:1;">
-            <label style="font-size:11px; font-weight:600; color:#64748b; display:block; margin-bottom:3px;">目標欄位 (#1~#10)：</label>
-            <select id="targetSlotSelect" class="modal-input" style="height:32px; font-size:12px;">
-              <!-- 由 JS 動態生成 1 ~ 10 格及該格預覽 -->
-            </select>
-          </div>
-        </div>
-
-        <div style="display:flex; gap:6px;">
-          <button type="button" class="btn-primary-modal" style="flex:1; justify-content:center; height:36px;" onclick="executeMove('swap')">
-            🔄 與目標互換
-          </button>
-          <button type="button" class="btn-primary-modal" style="flex:1; justify-content:center; height:36px; background:#0284c7;" onclick="executeMove('insert')">
-            📥 插入此位置
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- 浮動提示 Toast -->
   <div class="toast" id="toast">
     <span id="toastIcon">✅</span>
@@ -1661,10 +1777,40 @@
 
   <script>
     const TOTAL_PAGES = 10;
-    const SLOTS_PER_PAGE = 10;
+    const MAX_SLOTS = 20;
+    let slotsPerPage = parseInt(localStorage.getItem('wuyi_slots_per_page'), 10) || 10;
+    if (![10, 15, 20].includes(slotsPerPage)) slotsPerPage = 10;
+
     let currentPage = 1;
     let modalPage = 1;
     let currentCategory = 'all';
+
+    // 類別標籤順序（支援拖曳自由調動換位置）
+    const defaultCategoryOrder = ['💐', '🌹', '🎂', '🍔', '🔥', '🚗', '⭐️', '‼️', '❓', '😊', '👍', '💙', '❤️'];
+    let categoryList = loadCategoryOrder();
+
+    function loadCategoryOrder() {
+      try {
+        const saved = localStorage.getItem('wuyi_category_order');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const merged = [...parsed];
+            defaultCategoryOrder.forEach(cat => {
+              if (!merged.includes(cat)) merged.push(cat);
+            });
+            return merged;
+          }
+        }
+      } catch (e) {}
+      return [...defaultCategoryOrder];
+    }
+
+    function saveCategoryOrder() {
+      try {
+        localStorage.setItem('wuyi_category_order', JSON.stringify(categoryList));
+      } catch (e) {}
+    }
 
     const legacyCategoryMap = {
       payment: '💙',
@@ -1916,8 +2062,8 @@
       {
         "id": "slot_4_9",
         "category": "💐",
-        "title": "👰🏻‍♀️手捧花👰🏻‍♀️",
-        "text": "👰🏻‍♀️手捧花\n\n--𝒂.小手捧-- \n3-4種花材 $2280\n\n--𝒃,手捧花—\n4-6種花材 $3080\n\n✿以上花束方案皆為闆娘設計是「不指定花材跟樣式」喔\n✿可以選喜歡的色系由我們來搭配喔\n✿匯款完成後恕『無法取消訂單』， 因為鮮花有保鮮期問題，請確認需求後再下單！"
+        "title": "👰🏻♀️手捧花👰🏻♀️",
+        "text": "👰🏻♀️手捧花\n\n--𝒂.小手捧-- \n3-4種花材 $2280\n\n--𝒃,手捧花—\n4-6種花材 $3080\n\n✿以上花束方案皆為闆娘設計是「不指定花材跟樣式」喔\n✿可以選喜歡的色系由我們來搭配喔\n✿匯款完成後恕『無法取消訂單』， 因為鮮花有保鮮期問題，請確認需求後再下單！"
       },
       {
         "id": "slot_5_0",
@@ -1951,14 +2097,14 @@
       }
     ];
 
-    // 初始化 10 頁 x 10 欄位資料結構
+    // 初始化 10 頁 x 20 欄位資料結構 (支援每頁切換顯示 10 / 15 / 20 欄)
     let pagesData = loadPagesDataFromStorage();
 
     function loadPagesDataFromStorage() {
       let data = {};
       for (let p = 1; p <= TOTAL_PAGES; p++) {
         data[p] = [];
-        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+        for (let s = 0; s < MAX_SLOTS; s++) {
           data[p].push(null);
         }
       }
@@ -1970,7 +2116,7 @@
           if (parsed && typeof parsed === 'object') {
             for (let p = 1; p <= TOTAL_PAGES; p++) {
               if (Array.isArray(parsed[p])) {
-                for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+                for (let s = 0; s < MAX_SLOTS; s++) {
                   const it = parsed[p][s];
                   if (it) {
                     it.category = legacyCategoryMap[it.category] || it.category || '⭐️';
@@ -1996,7 +2142,7 @@
         oldList.forEach((item, idx) => {
           const p = Math.floor(idx / 10) + 1;
           const s = idx % 10;
-          if (p <= TOTAL_PAGES) {
+          if (p <= TOTAL_PAGES && s < MAX_SLOTS) {
             item.category = legacyCategoryMap[item.category] || item.category || '⭐️';
             data[p][s] = item;
           }
@@ -2015,6 +2161,88 @@
       } catch (e) {
         console.error('Storage save error:', e);
       }
+    }
+
+    // ================= 類別標籤動態渲染與拖曳換位 =================
+    let draggedCatIndex = null;
+
+    function renderCategoryPills() {
+      const container = document.getElementById('categoryPillsContainer');
+      if (!container) return;
+
+      let html = `
+        <button type="button" class="cat-pill ${currentCategory === 'all' ? 'active' : ''}" onclick="selectCategory('all', this)" title="全部回覆">🌟</button>
+      `;
+
+      categoryList.forEach((cat, idx) => {
+        html += `
+          <button type="button" 
+                  class="cat-pill ${currentCategory === cat ? 'active' : ''}" 
+                  draggable="true" 
+                  ondragstart="handleCatDragStart(event, ${idx})" 
+                  ondragover="handleCatDragOver(event)" 
+                  ondragleave="handleCatDragLeave(event)" 
+                  ondrop="handleCatDrop(event, ${idx})" 
+                  onclick="selectCategory('${cat}', this)" 
+                  title="${cat} (可直接拖曳換位置)">
+            ${cat}
+          </button>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function handleCatDragStart(e, idx) {
+      draggedCatIndex = idx;
+      e.dataTransfer.effectAllowed = 'move';
+      e.currentTarget.classList.add('cat-dragging');
+    }
+
+    function handleCatDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const target = e.currentTarget;
+      if (target && !target.classList.contains('cat-drag-over')) {
+        target.classList.add('cat-drag-over');
+      }
+    }
+
+    function handleCatDragLeave(e) {
+      e.currentTarget?.classList.remove('cat-drag-over');
+    }
+
+    function handleCatDrop(e, targetIdx) {
+      e.preventDefault();
+      e.currentTarget?.classList.remove('cat-drag-over');
+      document.querySelectorAll('.cat-pill.cat-dragging').forEach(el => el.classList.remove('cat-dragging'));
+      if (draggedCatIndex === null || draggedCatIndex === targetIdx) return;
+
+      const item = categoryList.splice(draggedCatIndex, 1)[0];
+      categoryList.splice(targetIdx, 0, item);
+      saveCategoryOrder();
+      renderCategoryPills();
+      showToast(`已調整類別標籤順序！`);
+      draggedCatIndex = null;
+    }
+
+    // ================= 每頁欄位數設定 (10 / 15 / 20) =================
+    function setSlotsPerPage(num) {
+      if (![10, 15, 20].includes(num)) return;
+      slotsPerPage = num;
+      try {
+        localStorage.setItem('wuyi_slots_per_page', num);
+      } catch (e) {}
+
+      document.querySelectorAll('.btn-slot-option').forEach(btn => {
+        btn.classList.toggle('active', btn.id === `btnSlot${num}`);
+      });
+
+      renderReplies();
+      if (document.getElementById('manageModal')?.classList.contains('show')) {
+        renderModalSlots();
+      }
+      showToast(`已切換為每頁顯示 ${num} 欄！`);
     }
 
     // 渲染主畫面 10 頁切換列 (極簡 ◀ 1..10 ▶，支援懸停拖放換頁)
@@ -2061,10 +2289,11 @@
       }
     }
 
-    // 渲染主畫面回覆卡片
+    // 渲染主畫面回覆卡片 (依據 slotsPerPage 顯示 10 / 15 / 20 欄)
     function renderReplies() {
       const container = document.getElementById('repliesContainer');
       if (!container) return;
+      container.className = 'reply-cards-list slots-' + slotsPerPage;
 
       const searchKeyword = document.getElementById('searchInput').value.trim().toLowerCase();
       const isFiltering = (currentCategory !== 'all' || searchKeyword.length > 0);
@@ -2094,11 +2323,11 @@
 
         container.innerHTML = itemsToRender.map(item => buildReplyCardHtml(item, item.pageNum, item.slotIndex)).join('');
       } else {
-        // 一般模式：展示當前頁的 10 個欄位
+        // 一般模式：展示當前頁的 slotsPerPage 個欄位
         const currentSlots = pagesData[currentPage];
         let cardsHtml = '';
 
-        for (let s = 0; s < SLOTS_PER_PAGE; s++) {
+        for (let s = 0; s < slotsPerPage; s++) {
           const item = currentSlots[s];
           if (item) {
             cardsHtml += buildReplyCardHtml(item, currentPage, s);
@@ -2111,7 +2340,7 @@
                    ondragover="handleDragOver(event)"
                    ondragleave="handleDragLeave(event)"
                    ondrop="handleDrop(event, ${currentPage}, ${s})">
-                <span style="font-size:12px; color:#94a3b8; font-weight:600;">＋ 空欄位（點擊填寫，可拖曳換位）</span>
+                <span style="font-size:12px; color:#94a3b8; font-weight:600;">＋ #${s + 1} 空欄位（點擊填寫，可拖曳換位）</span>
                 <button type="button" class="btn-card-edit" style="pointer-events:none; width:auto; padding:0 6px; font-size:10.5px;">
                   <span>✏️ 填寫</span>
                 </button>
@@ -2137,14 +2366,7 @@
              id="replyCard_${pageNum}_${slotIdx}"
              data-page="${pageNum}"
              data-slot="${slotIdx}"
-             title="長按 3 秒可移動欄位／換頁數；也可直接滑鼠拖曳換位"
-             onmousedown="startLongPress(event, ${pageNum}, ${slotIdx})"
-             onmouseup="cancelLongPress()"
-             onmouseleave="cancelLongPress()"
-             ontouchstart="handleTouchStart(event, ${pageNum}, ${slotIdx})"
-             ontouchmove="handleTouchMove(event)"
-             ontouchend="cancelLongPress()"
-             ontouchcancel="cancelLongPress()"
+             title="可直接滑鼠拖曳換位"
              draggable="true"
              ondragstart="handleDragStart(event, ${pageNum}, ${slotIdx})"
              ondragover="handleDragOver(event)"
@@ -2159,12 +2381,12 @@
               <span>✏️</span>
             </button>
             <!-- 複製按鈕 (防閃退安全複製) -->
-            <button type="button" class="btn-main-copy" id="btnCopy_${item.id || (pageNum + '_' + slotIdx)}" onclick="copyTextDirect(this, \`${encodeURIComponent(item.text)}\`)">
-              <span>📋 複製</span>
+            <button type="button" class="btn-main-copy" id="btnCopy_${item.id || (pageNum + '_' + slotIdx)}" onclick="copyTextDirect(this, \`${encodeURIComponent(item.text)}\`)" title="複製文字">
+              <span>📋</span>
             </button>
             <!-- 送出按鈕 (防閃退安全呼叫 LINE OA) -->
             <button type="button" class="btn-card-send" onclick="sendDirectToLine(\`${encodeURIComponent(item.text)}\`)" title="複製並開啟官方 LINE 對話框貼上">
-              <span>🚀 送出</span>
+              <span>🚀</span>
             </button>
           </div>
         </div>
@@ -2276,10 +2498,10 @@
       performSafeCopy(text, () => {
         if (btn) {
           btn.classList.add('copied');
-          btn.innerHTML = '<span>✓ 已複製</span>';
+          btn.innerHTML = '<span>✓</span>';
           setTimeout(() => {
             btn.classList.remove('copied');
-            btn.innerHTML = '<span>📋 複製</span>';
+            btn.innerHTML = '<span>📋</span>';
           }, 1500);
         }
         showToast('已複製！請直接在官方 LINE 對話框 貼上發送');
@@ -2398,13 +2620,15 @@
     }
 
     function switchModalTab(tab) {
-      ['batch', 'single', 'list'].forEach(t => {
-        document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('active', t === tab);
-        document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`).classList.toggle('active', t === tab);
+      ['batch', 'sync', 'single', 'list'].forEach(t => {
+        const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const content = document.getElementById(`tabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (content) content.classList.toggle('active', t === tab);
       });
       if (tab === 'batch') {
         renderModalPageSelector();
-        renderModalTenSlots();
+        renderModalSlots();
       }
       if (tab === 'list') renderModalList();
     }
@@ -2424,25 +2648,24 @@
       container.innerHTML = html;
 
       const lbl = document.getElementById('editingPageLabel');
-      if (lbl) lbl.textContent = `第 ${modalPage} 頁（欄位 #1 ~ #10）`;
+      if (lbl) lbl.textContent = `第 ${modalPage} 頁（欄位 #1 ~ #${slotsPerPage}）`;
     }
 
     function changeModalPage(p) {
       modalPage = p;
       renderModalPageSelector();
-      renderModalTenSlots();
+      renderModalSlots();
     }
 
-    function renderModalTenSlots() {
+    function renderModalSlots() {
       const container = document.getElementById('tenSlotsContainer');
       if (!container) return;
 
-      const catOptions = ['💐', '🌹', '🎂', '🍔', '🔥', '🚗', '⭐️', '‼️', '❓', '😊', '👍', '💙', '❤️'].map(e => ({ value: e, label: e }));
-
+      const catOptions = categoryList.map(e => ({ value: e, label: e }));
       const currentSlots = pagesData[modalPage];
       let html = '';
 
-      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+      for (let i = 0; i < slotsPerPage; i++) {
         const item = currentSlots[i] || { title: '', category: '⭐️', text: '' };
         html += `
           <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:7px 9px; display:flex; flex-direction:column; gap:4px;">
@@ -2461,8 +2684,12 @@
       container.innerHTML = html;
     }
 
+    function renderModalTenSlots() {
+      renderModalSlots();
+    }
+
     function saveCurrentModalPageSlots() {
-      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+      for (let i = 0; i < slotsPerPage; i++) {
         const titleEl = document.getElementById(`slotTitle_${i}`);
         const catEl = document.getElementById(`slotCat_${i}`);
         const textEl = document.getElementById(`slotText_${i}`);
@@ -2489,12 +2716,12 @@
       renderMainPageNav();
       renderReplies();
       closeManageModal();
-      showToast(`🎉 成功儲存第 ${modalPage} 頁的 10 個欄位！`);
+      showToast(`🎉 成功儲存第 ${modalPage} 頁的 ${slotsPerPage} 個欄位！`);
     }
 
     function clearCurrentModalPageSlots() {
       if (!confirm(`確定要清空第 ${modalPage} 頁的所有欄位嗎？`)) return;
-      for (let i = 0; i < SLOTS_PER_PAGE; i++) {
+      for (let i = 0; i < slotsPerPage; i++) {
         const t = document.getElementById(`slotTitle_${i}`);
         const txt = document.getElementById(`slotText_${i}`);
         if (t) t.value = '';
@@ -2600,6 +2827,227 @@
       showToast('已恢復官方預設範本');
     }
 
+    // ================= 一鍵同步 LINE 官方預設訊息 (智慧解析與同步) =================
+    function detectCategoryEmoji(title, text) {
+      const combined = (title + ' ' + text).toLowerCase();
+      if (/花|束|永生|鮮花|玫瑰|康乃馨|鬱金香|向日葵|花藝/.test(combined)) return '💐';
+      if (/蛋糕|6吋|8吋|4吋|甜點|蠟燭|切片|戚風|提拉米蘇|乳酪/.test(combined)) return '🎂';
+      if (/漢堡|現貨|今日|當日|自取|門市|現場/.test(combined)) return '🍔';
+      if (/車|寄送|宅配|運費|外送|地址|配送|黑貓|冷藏宅配/.test(combined)) return '🚗';
+      if (/熱銷|推薦|必點|限時|優惠|活動|折扣|特價|折扣碼/.test(combined)) return '🔥';
+      if (/匯款|帳號|玉山|轉帳|付款|銀行|訂金|後五碼|對帳/.test(combined)) return '💙';
+      if (/注意事項|注意|須知|提醒|退換|保存|冷藏|效期/.test(combined)) return '‼️';
+      if (/問題|常見|詢問|faq|營業時間|營業|公休|電話/.test(combined)) return '❓';
+      if (/感謝|謝謝|您好|歡迎|光臨|哈囉|辛苦/.test(combined)) return '😊';
+      if (/確認|收到|已登記|已完成|沒問題|ok|好的/.test(combined)) return '👍';
+      if (/愛心|溫馨|祝賀|生日快樂|慶祝|祝福|紀念日/.test(combined)) return '❤️';
+      return '⭐️';
+    }
+
+    function parseLineSyncText(rawText) {
+      rawText = rawText.trim();
+      if (!rawText) return [];
+
+      // 1. 如果是 JSON 格式 (例如書籤抓取或備份匯出)
+      if (rawText.startsWith('[') && rawText.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(rawText);
+          if (Array.isArray(parsed)) {
+            return parsed.map((item, idx) => {
+              if (typeof item === 'string') {
+                return {
+                  title: item.slice(0, 15),
+                  category: detectCategoryEmoji(item, item),
+                  text: item
+                };
+              }
+              const title = item.title || item.name || `常用回覆 #${idx + 1}`;
+              const text = item.text || item.content || item.body || item.message || '';
+              const category = item.category || detectCategoryEmoji(title, text);
+              return { title, category, text };
+            }).filter(i => i.title || i.text);
+          }
+        } catch (e) {}
+      }
+
+      // 2. 智慧純文字多區塊拆解
+      let blocks = [];
+      if (/[\r\n]+[-=]{3,}[\r\n]+/.test(rawText)) {
+        blocks = rawText.split(/[\r\n]+[-=]{3,}[\r\n]+/);
+      } else if (rawText.includes('\n\n')) {
+        blocks = rawText.split(/\n\s*\n+/);
+      } else if (/^【.*?】/m.test(rawText) && (rawText.match(/^【/mg) || []).length > 1) {
+        blocks = rawText.split(/(?=^【)/m);
+      } else if (rawText.includes('\t') && rawText.includes('\n')) {
+        blocks = rawText.split(/\r?\n+/);
+      } else {
+        blocks = [rawText];
+      }
+
+      const results = [];
+      blocks.forEach((blk, idx) => {
+        let trimmed = blk.trim();
+        if (!trimmed) return;
+
+        let title = '';
+        let category = '⭐️';
+        let body = '';
+
+        const bracketMatch = trimmed.match(/^【(.*?)】\s*([\s\S]*)$/);
+        const sqBracketMatch = trimmed.match(/^\[(.*?)\]\s*([\s\S]*)$/);
+        const colonMatch = trimmed.match(/^(?:標題|名稱|主題)[:：]\s*(.*?)\s*[\r\n]+([\s\S]*)$/i);
+        const lineOaTabMatch = trimmed.match(/^([^\t\r\n]{2,30})\t+([\s\S]+)$/);
+
+        if (bracketMatch) {
+          title = bracketMatch[1].trim();
+          body = bracketMatch[2].trim();
+        } else if (sqBracketMatch) {
+          title = sqBracketMatch[1].trim();
+          body = sqBracketMatch[2].trim();
+        } else if (colonMatch) {
+          title = colonMatch[1].trim();
+          body = colonMatch[2].trim();
+        } else if (lineOaTabMatch) {
+          title = lineOaTabMatch[1].trim();
+          body = lineOaTabMatch[2].trim();
+        } else {
+          const lines = trimmed.split('\n');
+          if (lines.length > 1 && lines[0].length <= 30) {
+            title = lines[0].trim();
+            body = lines.slice(1).join('\n').trim();
+          } else {
+            title = trimmed.slice(0, 15).replace(/[\r\n]+/g, ' ') + (trimmed.length > 15 ? '...' : '');
+            body = trimmed;
+          }
+        }
+
+        const emojiMatch = title.match(/^([\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83E[\uDD00-\uDDFF])/);
+        if (emojiMatch) {
+          category = emojiMatch[1];
+          title = title.slice(category.length).trim();
+        } else {
+          category = detectCategoryEmoji(title, body);
+        }
+
+        if (title || body) {
+          results.push({
+            title: title || `常用回覆 #${idx + 1}`,
+            category: category,
+            text: body || title
+          });
+        }
+      });
+
+      return results;
+    }
+
+    function executeSmartLineSync() {
+      const inputEl = document.getElementById('lineSyncInput');
+      const rawText = inputEl ? inputEl.value : '';
+      if (!rawText.trim()) {
+        showToast('請先貼上 LINE 官方訊息文字！', '⚠️');
+        return;
+      }
+
+      const items = parseLineSyncText(rawText);
+      if (items.length === 0) {
+        showToast('未能辨識出有效訊息內容，請確認貼上內容', '⚠️');
+        return;
+      }
+
+      const mode = document.getElementById('syncModeSelect')?.value || 'append';
+      let filledCount = 0;
+
+      if (mode === 'overwrite') {
+        let itemIdx = 0;
+        for (let p = 1; p <= TOTAL_PAGES; p++) {
+          for (let s = 0; s < MAX_SLOTS; s++) {
+            if (itemIdx < items.length) {
+              const it = items[itemIdx++];
+              pagesData[p][s] = {
+                id: `slot_${p}_${s}`,
+                category: it.category || '⭐️',
+                title: it.title,
+                text: it.text
+              };
+              filledCount++;
+            }
+          }
+        }
+      } else if (mode === 'currentPage') {
+        let itemIdx = 0;
+        let p = currentPage;
+        let s = 0;
+        while (itemIdx < items.length && p <= TOTAL_PAGES) {
+          const it = items[itemIdx++];
+          pagesData[p][s] = {
+            id: `slot_${p}_${s}`,
+            category: it.category || '⭐️',
+            title: it.title,
+            text: it.text
+          };
+          filledCount++;
+          s++;
+          if (s >= MAX_SLOTS) {
+            s = 0;
+            p++;
+          }
+        }
+      } else {
+        // append 模式：依序填入空白欄位，不覆蓋現有
+        let itemIdx = 0;
+        for (let p = 1; p <= TOTAL_PAGES && itemIdx < items.length; p++) {
+          for (let s = 0; s < MAX_SLOTS && itemIdx < items.length; s++) {
+            if (!pagesData[p][s] || (!pagesData[p][s].title && !pagesData[p][s].text)) {
+              const it = items[itemIdx++];
+              pagesData[p][s] = {
+                id: `slot_${p}_${s}`,
+                category: it.category || '⭐️',
+                title: it.title,
+                text: it.text
+              };
+              filledCount++;
+            }
+          }
+        }
+      }
+
+      savePagesDataToStorage();
+      renderMainPageNav();
+      renderReplies();
+      renderModalSlots();
+      renderModalList();
+      showToast(`🎉 成功同步 ${filledCount} 則 LINE 官方預設訊息！`);
+      closeManageModal();
+    }
+
+    function loadSyncExample() {
+      const example = `【匯款帳號資訊】
+您好呀～我們的銀行匯款帳號如下：
+銀行代碼：808 (玉山銀行)
+帳號：0123-4567-8901
+戶名：梧藝手作工作室
+匯款完成後再麻煩告知我們帳號後五碼，謝謝您！❤️
+
+【蛋糕冷藏與食用說明】
+蛋糕冷藏可保存 2～3 天，建議當日享用風味最佳！
+食用前請先退冰 10～15 分鐘，口感最鬆軟綿密喔 🎂
+
+【今日現貨取貨說明】
+門市營業時間為 11:00～19:30。
+取貨時請告知訂購人大名與電話即可取件！🚗`;
+      const el = document.getElementById('lineSyncInput');
+      if (el) el.value = example;
+      showToast('已載入示範文字！可點擊下方「一鍵智慧解析」測試');
+    }
+
+    function copyBookmarkletCode() {
+      const code = `javascript:(function(){const items=[];document.querySelectorAll('[class*="canned"],[class*="template"],[role="listitem"],tr,.message-item').forEach(el=>{const t=el.innerText.trim();if(t&&t.length>4)items.push(t);});const text=items.join('\\n---\\n');navigator.clipboard.writeText(text).then(()=>alert('🎉 已複製 LINE 預設訊息！請回到梧藝小幫手貼上進行同步')).catch(()=>prompt('請複製以下內容：',text));})();`;
+      performSafeCopy(code, () => {
+        showToast('已複製書籤小工具代碼！可新增至瀏覽器書籤');
+      });
+    }
+
     // AI 潤飾功能
     function polishWithAI() {
       const input = document.getElementById('draftInput');
@@ -2674,7 +3122,9 @@
       hasBag: false,
       cakePrice: 0,
       hasIceBag: false,
-      addons: { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0 }
+      addons: { u2: 0, u5: 0, u10: 0, c30: 0, c45: 0, c55: 0 },
+      customAddonName: '',
+      customAddonPrice: 0
     };
 
     function toggleQuoteCollapse() {
@@ -2732,7 +3182,7 @@
     function cycleAddon(key, unitPrice, label) {
       quoteState.addons[key] = (quoteState.addons[key] + 1) % 6; // 0 ~ 5 循環
       const count = quoteState.addons[key];
-      const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c45: 'btnC45', c55: 'btnC55' };
+      const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c30: 'btnC30', c45: 'btnC45', c55: 'btnC55' };
       const btn = document.getElementById(btnMap[key]);
 
       if (count === 0) {
@@ -2742,6 +3192,15 @@
         btn.classList.add('active');
         btn.textContent = `${label} x${count} +$${count * unitPrice}`;
       }
+      calcQuote();
+    }
+
+    function onCustomAddonInput() {
+      const nameEl = document.getElementById('customAddonName');
+      const priceEl = document.getElementById('customAddonPrice');
+      quoteState.customAddonName = nameEl ? nameEl.value.trim() : '';
+      const p = priceEl ? parseInt(priceEl.value, 10) : 0;
+      quoteState.customAddonPrice = (!isNaN(p) && p > 0) ? p : 0;
       calcQuote();
     }
 
@@ -2764,6 +3223,7 @@
         u2: { name: '2人餐具', price: 15 },
         u5: { name: '5人餐具', price: 30 },
         u10: { name: '10人餐具', price: 50 },
+        c30: { name: '數字蠟燭', price: 30 },
         c45: { name: '蠟燭', price: 45 },
         c55: { name: '蠟燭', price: 55 }
       };
@@ -2778,6 +3238,12 @@
       });
 
       if (quoteState.hasIceBag) { items.push(`保冰袋$100`); total += 100; }
+
+      if (quoteState.customAddonPrice > 0) {
+        const customName = quoteState.customAddonName || '自訂加購';
+        items.push(`${customName}$${quoteState.customAddonPrice}`);
+        total += quoteState.customAddonPrice;
+      }
 
       return { items, total };
     }
@@ -2811,7 +3277,9 @@
       quoteState.hasBag = false;
       quoteState.cakePrice = 0;
       quoteState.hasIceBag = false;
-      quoteState.addons = { u2: 0, u5: 0, u10: 0, c45: 0, c55: 0 };
+      quoteState.addons = { u2: 0, u5: 0, u10: 0, c30: 0, c45: 0, c55: 0 };
+      quoteState.customAddonName = '';
+      quoteState.customAddonPrice = 0;
 
       document.getElementById('btnFlower').classList.remove('active');
       document.getElementById('flowerCustomPrice').value = '';
@@ -2820,12 +3288,19 @@
       updateCakeBtnUI();
       document.getElementById('btnIce').classList.remove('active');
 
-      ['u2', 'u5', 'u10', 'c45', 'c55'].forEach(k => {
-        const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c45: 'btnC45', c55: 'btnC55' };
-        const labelMap = { u2: '2人餐具 +$15', u5: '5人餐具 +$30', u10: '10人餐具 +$50', c45: '蠟燭 $45', c55: '蠟燭 $55' };
+      const customNameEl = document.getElementById('customAddonName');
+      const customPriceEl = document.getElementById('customAddonPrice');
+      if (customNameEl) customNameEl.value = '';
+      if (customPriceEl) customPriceEl.value = '';
+
+      ['u2', 'u5', 'u10', 'c30', 'c45', 'c55'].forEach(k => {
+        const btnMap = { u2: 'btnU2', u5: 'btnU5', u10: 'btnU10', c30: 'btnC30', c45: 'btnC45', c55: 'btnC55' };
+        const labelMap = { u2: '2人餐具 +$15', u5: '5人餐具 +$30', u10: '10人餐具 +$50', c30: '數字蠟燭 +$30', c45: '蠟燭 $45', c55: '蠟燭 $55' };
         const b = document.getElementById(btnMap[k]);
-        b.classList.remove('active');
-        b.textContent = labelMap[k];
+        if (b) {
+          b.classList.remove('active');
+          b.textContent = labelMap[k];
+        }
       });
 
       calcQuote();
@@ -2840,202 +3315,8 @@
       setTimeout(() => t.classList.remove('show'), 2000);
     }
 
-    // ================= 長按 3 秒移動欄位 / 換頁數 ＆ 拖曳排序 =================
-    let longPressTimer = null;
-    let longPressCard = null;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let movingPage = 1;
-    let movingSlot = 0;
+    // ================= 滑鼠拖曳排序 (HTML5 Drag & Drop) =================
     let draggedCoord = null;
-
-    function startLongPress(e, pageNum, slotIdx) {
-      if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('textarea')) {
-        return;
-      }
-
-      cancelLongPress();
-      longPressCard = { page: pageNum, slot: slotIdx };
-
-      const cardEl = document.getElementById(`replyCard_${pageNum}_${slotIdx}`);
-      if (cardEl) {
-        cardEl.classList.add('pressing');
-      }
-
-      // 3秒 (3000ms) 長按計時
-      longPressTimer = setTimeout(() => {
-        cancelLongPress();
-        if (navigator.vibrate) {
-          try { navigator.vibrate([60, 50, 60]); } catch (err) {}
-        }
-        openMoveModal(pageNum, slotIdx);
-      }, 3000);
-    }
-
-    function cancelLongPress() {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-      document.querySelectorAll('.reply-card.pressing').forEach(el => el.classList.remove('pressing'));
-    }
-
-    function handleTouchStart(e, pageNum, slotIdx) {
-      if (e.touches && e.touches[0]) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-      }
-      startLongPress(e, pageNum, slotIdx);
-    }
-
-    function handleTouchMove(e) {
-      if (!longPressTimer) return;
-      if (e.touches && e.touches[0]) {
-        const dist = Math.hypot(e.touches[0].clientX - touchStartX, e.touches[0].clientY - touchStartY);
-        if (dist > 14) {
-          cancelLongPress();
-        }
-      }
-    }
-
-    // 移動與換頁 Modal 控制
-    function openMoveModal(p, s) {
-      movingPage = p;
-      movingSlot = s;
-
-      const item = pagesData[p]?.[s];
-      if (!item) return;
-
-      const previewEl = document.getElementById('moveItemPreview');
-      if (previewEl) {
-        const emoji = item.category || '⭐️';
-        previewEl.innerHTML = `<span class="reply-emoji-tag">${emoji}</span> ${escapeHtml(item.title || '常用回覆')}`;
-      }
-
-      const locEl = document.getElementById('moveSourceLocation');
-      if (locEl) {
-        locEl.textContent = `第 ${p} 頁 - 欄位 #${s + 1}`;
-      }
-
-      const pageSelect = document.getElementById('targetPageSelect');
-      if (pageSelect) {
-        let html = '';
-        for (let i = 1; i <= TOTAL_PAGES; i++) {
-          html += `<option value="${i}" ${i === p ? 'selected' : ''}>第 ${i} 頁</option>`;
-        }
-        pageSelect.innerHTML = html;
-      }
-
-      updateTargetSlotOptions();
-      document.getElementById('moveModal')?.classList.add('show');
-    }
-
-    function updateTargetSlotOptions() {
-      const pageSelect = document.getElementById('targetPageSelect');
-      const slotSelect = document.getElementById('targetSlotSelect');
-      if (!pageSelect || !slotSelect) return;
-
-      const targetP = parseInt(pageSelect.value, 10);
-      let html = '';
-      for (let s = 0; s < SLOTS_PER_PAGE; s++) {
-        const item = pagesData[targetP]?.[s];
-        let desc = '(空欄位)';
-        if (item && item.title) {
-          desc = `${item.category || ''} ${item.title}`;
-          if (desc.length > 15) desc = desc.slice(0, 15) + '...';
-        }
-        const isCurrent = (targetP === movingPage && s === movingSlot);
-        html += `<option value="${s}" ${s === movingSlot && targetP !== movingPage ? 'selected' : ''}>
-          #${s + 1} ${escapeHtml(desc)} ${isCurrent ? '👈 目前' : ''}
-        </option>`;
-      }
-      slotSelect.innerHTML = html;
-    }
-
-    function closeMoveModal() {
-      document.getElementById('moveModal')?.classList.remove('show');
-    }
-
-    function closeMoveModalOnBg(e) {
-      if (e.target.id === 'moveModal') closeMoveModal();
-    }
-
-    // 快捷相對微調順序
-    function moveSlotRelative(direction) {
-      const targetSlot = movingSlot + direction;
-      if (targetSlot < 0 || targetSlot >= SLOTS_PER_PAGE) {
-        showToast(direction < 0 ? '已經在最上方了！' : '已經在最下方了！', '⚠️');
-        return;
-      }
-
-      const temp = pagesData[movingPage][targetSlot];
-      pagesData[movingPage][targetSlot] = pagesData[movingPage][movingSlot];
-      pagesData[movingPage][movingSlot] = temp;
-
-      savePagesDataToStorage();
-      movingSlot = targetSlot;
-      renderMainPageNav();
-      renderReplies();
-      openMoveModal(movingPage, movingSlot);
-      showToast(`已移動至第 ${movingSlot + 1} 格！`);
-    }
-
-    function moveSlotToExtremes(pos) {
-      const targetSlot = (pos === 'top') ? 0 : (SLOTS_PER_PAGE - 1);
-      if (targetSlot === movingSlot) {
-        showToast(pos === 'top' ? '已經在最前格了！' : '已經在最後格了！', '⚠️');
-        return;
-      }
-
-      const item = pagesData[movingPage].splice(movingSlot, 1)[0];
-      if (pos === 'top') {
-        pagesData[movingPage].unshift(item);
-      } else {
-        pagesData[movingPage].push(item);
-      }
-
-      savePagesDataToStorage();
-      movingSlot = targetSlot;
-      renderMainPageNav();
-      renderReplies();
-      openMoveModal(movingPage, movingSlot);
-      showToast(pos === 'top' ? '已移到最前格！' : '已移到最後格！');
-    }
-
-    // 指定跨頁/跨格移動 (互換 或 插入)
-    function executeMove(action) {
-      const targetPage = parseInt(document.getElementById('targetPageSelect').value, 10);
-      const targetSlot = parseInt(document.getElementById('targetSlotSelect').value, 10);
-
-      if (targetPage === movingPage && targetSlot === movingSlot) {
-        showToast('目標位置與目前位置相同！', '⚠️');
-        return;
-      }
-
-      const srcItem = pagesData[movingPage][movingSlot];
-
-      if (action === 'swap') {
-        const destItem = pagesData[targetPage][targetSlot];
-        pagesData[targetPage][targetSlot] = srcItem;
-        pagesData[movingPage][movingSlot] = destItem;
-      } else if (action === 'insert') {
-        if (targetPage === movingPage) {
-          pagesData[movingPage].splice(movingSlot, 1);
-          pagesData[movingPage].splice(targetSlot, 0, srcItem);
-        } else {
-          pagesData[movingPage][movingSlot] = null;
-          pagesData[targetPage].splice(targetSlot, 0, srcItem);
-          pagesData[targetPage].length = SLOTS_PER_PAGE;
-        }
-      }
-
-      savePagesDataToStorage();
-      currentPage = targetPage;
-      renderMainPageNav();
-      renderReplies();
-      closeMoveModal();
-      showToast(`🎉 成功移動至第 ${targetPage} 頁 - 欄位 #${targetSlot + 1}！`);
-    }
 
     // HTML5 滑鼠拖曳排序
     function handleDragStart(e, pageNum, slotIdx) {
@@ -3185,6 +3466,8 @@
     // 初始化渲染與讀取模式 (預設為適合上下堆疊分割的靠下模式)
     const savedMode = localStorage.getItem('wuyi_split_mode') || 'bottom';
     setSplitMode(savedMode);
+    renderCategoryPills();
+    setSlotsPerPage(slotsPerPage);
     renderMainPageNav();
     renderReplies();
   </script>
